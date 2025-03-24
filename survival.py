@@ -11,7 +11,7 @@ CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有来源
 
 @app.route('/')
 def index():
-    return app.send_static_file('table.html')
+    return app.send_static_file('survival.html')
 
 @app.route('/predict', methods=['POST'])
 def predict():

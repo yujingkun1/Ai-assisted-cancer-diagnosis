@@ -7,7 +7,7 @@ import os
 import sys
 
 # 加载保存的模型
-rsf_model = joblib.load('survival_analysis/rsf_model.pkl')
+rsf_model = joblib.load('model_weights/rsf_model.pkl')
 
 # 定义需要的特征及其说明
 features_info = {
@@ -21,9 +21,10 @@ features_info = {
 }
 
 # 创建保存图像的目录
-plot_dir = 'survival_analysis/predictions'
+plot_dir = 'output/survival'
 if not os.path.exists(plot_dir):
     os.makedirs(plot_dir)
+plt.savefig(os.path.join(plot_dir, 'patient_survival_curve.png'))
 
 # 从命令行参数获取患者数据
 if len(sys.argv) != 8:  # 期望 7 个参数 + 脚本名

@@ -5,9 +5,6 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>生存分析</title>
-    
-
-    
 
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
@@ -17,44 +14,50 @@
         rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
-    <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
-    <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-    <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
-
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="/static/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    
     <!-- Main CSS File -->
-    <link href="assets/css/main.css" rel="stylesheet">
+    <link href="/static/assets/css/main.css" rel="stylesheet">
     <style>
         .diagnosis-card {
             border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .image-preview {
             border: 2px dashed #3fbbc0;
             position: relative;
         }
+
         .highlight-overlay {
             position: absolute;
             border: 2px solid #ff4757;
-            background: rgba(255,71,87,0.1);
+            background: rgba(255, 71, 87, 0.1);
             pointer-events: none;
         }
+
         .report-badge {
             font-size: 1.2rem;
             padding: 0.8em 1.5em;
         }
+
         .tool-content-area {
-            display: none; 
+            display: none;
         }
+
         .tool-content-area.active {
-             display: block;
+            display: block;
         }
+
         .tools-menu-item.active {
-            
-             border-radius: 4px;
+            border-radius: 4px;
         }
+
         :root {
             --科技蓝: #00f3ff;
             --深空黑: #0a0a1a;
@@ -102,10 +105,10 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(0, 243, 255, 0.2), 
-                transparent);
+            background: linear-gradient(90deg,
+                    transparent,
+                    rgba(0, 243, 255, 0.2),
+                    transparent);
             transition: 0.5s;
         }
 
@@ -149,17 +152,22 @@
             left: -50%;
             width: 200%;
             height: 200%;
-            background: linear-gradient(45deg, 
-                transparent, 
-                rgba(255,255,255,0.2), 
-                transparent);
+            background: linear-gradient(45deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.2),
+                    transparent);
             transform: rotate(45deg);
             animation: btnGlow 3s infinite;
         }
 
         @keyframes btnGlow {
-            0% { transform: rotate(45deg) translateX(-150%); }
-            100% { transform: rotate(45deg) translateX(150%); }
+            0% {
+                transform: rotate(45deg) translateX(-150%);
+            }
+
+            100% {
+                transform: rotate(45deg) translateX(150%);
+            }
         }
 
         #diagnosisChart {
@@ -173,15 +181,19 @@
             position: relative;
             border: 2px solid transparent;
             border-radius: 8px;
-            background: 
+            background:
                 linear-gradient(#000, #000) padding-box,
                 linear-gradient(45deg, var(--电子紫), var(--科技蓝)) border-box;
         }
-        
-        
+
         @keyframes scanLine {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
+            0% {
+                transform: translateY(-100%);
+            }
+
+            100% {
+                transform: translateY(100%);
+            }
         }
 
         .scan-effect:after {
@@ -192,42 +204,38 @@
             background: linear-gradient(90deg, transparent, var(--科技蓝), transparent);
             animation: scanLine 3s infinite;
         }
-        .navmenu li a{
-            color:white;
+
+        .navmenu li a {
+            color: white;
         }
-        
+
+        .error {
+            color: #ff4757;
+        }
     </style>
 </head>
 
 <body class="index-page">
 
-    <header  class="header sticky-top">
-
+    <header class="header sticky-top">
         <div class="branding d-flex align-items-center">
             <div class="container position-relative d-flex align-items-center justify-content-end">
-
-                <nav id="navmenu" class="navmenu" >
+                <nav id="navmenu" class="navmenu">
                     <ul>
                         <li><a href="index.html" class="active">首页</a></li>
-                        
-                       
-                        <li class="dropdown"><a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                          <ul>
-                            <li><a href="WSI.html">WSI图像分析</a></li>
-                            <li><a href="#transcriptomics">CT图像分析</a></li>
-                            
-                          </ul>
+                        <li class="dropdown"><a href="#"><span>医学图像分析</span> <i
+                                    class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <li><a href="WSI.html">WSI图像分析</a></li>
+                                <li><a href="#transcriptomics">CT图像分析</a></li>
+                            </ul>
                         </li>
-                    
                         <li><a href="table.html">生存分析</a></li>
-                    
                         <li><a href="Phenotype.html">基因</a></li>
-                    
-                        
-                      </ul>
+                    </ul>
                     <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
                 </nav>
-                <a class="cta-btn" href="login.html" >登录</a>
+                <a class="cta-btn" href="login.html">登录</a>
             </div>
         </div>
     </header>
@@ -250,9 +258,8 @@
                                 <div class="col-xl-6">
                                     <label class="form-label"><i class="bi bi-person-circle me-2"></i>患者年龄</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" 
-                                               name="age" min="0" max="120" 
-                                               required placeholder="请输入年龄 (0-120岁)">
+                                        <input type="number" class="form-control" name="age" min="0" max="120" required
+                                            placeholder="请输入年龄 (0-120岁)">
                                         <span class="input-group-text">岁</span>
                                     </div>
                                 </div>
@@ -260,16 +267,13 @@
                                 <div class="col-xl-6">
                                     <label class="form-label"><i class="bi bi-gender-ambiguous me-2"></i>患者性别</label>
                                     <div class="btn-radio-group btn-group w-100">
-                                        <input type="radio" class="btn-check" 
-                                               name="gender_code" id="gender0" 
-                                               value="0" required>
+                                        <input type="radio" class="btn-check" name="gender_code" id="gender0" value="0"
+                                            required>
                                         <label class="btn btn-outline-primary" for="gender0">
                                             <i class="bi bi-gender-female"></i> 女性
                                         </label>
 
-                                        <input type="radio" class="btn-check" 
-                                               name="gender_code" id="gender1" 
-                                               value="1">
+                                        <input type="radio" class="btn-check" name="gender_code" id="gender1" value="1">
                                         <label class="btn btn-outline-primary" for="gender1">
                                             <i class="bi bi-gender-male"></i> 男性
                                         </label>
@@ -282,19 +286,16 @@
                                 <div class="col-xl-4">
                                     <label class="form-label"><i class="bi bi-rulers me-2"></i>肿瘤大小</label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control" 
-                                               name="tumor.size" step="0.1"
-                                               min="0" max="1000" required
-                                               placeholder="直径">
+                                        <input type="number" class="form-control" name="tumor.size" step="0.1" min="0"
+                                            max="1000" required placeholder="直径">
                                         <span class="input-group-text">毫米</span>
                                     </div>
                                 </div>
 
                                 <div class="col-xl-4">
                                     <label class="form-label"><i class="bi bi-droplet-half me-2"></i>CEA 水平</label>
-                                    <input type="number" class="form-control" 
-                                           name="cea" step="0.1"
-                                           placeholder="癌胚抗原 (ng/mL)">
+                                    <input type="number" class="form-control" name="cea" step="0.1"
+                                        placeholder="癌胚抗原 (ng/mL)">
                                 </div>
 
                                 <div class="col-xl-4">
@@ -313,25 +314,22 @@
                                 <div class="col-xl-6">
                                     <label class="form-label"><i class="bi bi-activity me-2"></i>神经侵犯</label>
                                     <div class="btn-radio-group btn-group w-100">
-                                        <input type="radio" class="btn-check" 
-                                               name="PMI" id="PMI0" value="0" required>
-                                        <label class="btn btn-outline-primary" for="PMI0">未发现</label>
-                                        
-                                        <input type="radio" class="btn-check" 
-                                               name="PMI" id="PMI1" value="1">
-                                        <label class="btn btn-outline-primary" for="PMI1">存在侵犯</label>
+                                        <input type="radio" class="btn-check" name="PNI" id="PNI0" value="0" required>
+                                        <label class="btn btn-outline-primary" for="PNI0">未发现</label>
+
+                                        <input type="radio" class="btn-check" name="PNI" id="PNI1" value="1">
+                                        <label class="btn btn-outline-primary" for="PNI1">存在侵犯</label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="col-xl-6">
                                     <label class="form-label"><i class="bi bi-share me-2"></i>淋巴结转移</label>
                                     <div class="btn-radio-group btn-group w-100">
-                                        <input type="radio" class="btn-check" 
-                                               name="lymphcat" id="lymph0" value="0" required>
+                                        <input type="radio" class="btn-check" name="lymphcat" id="lymph0" value="0"
+                                            required>
                                         <label class="btn btn-outline-primary" for="lymph0">无转移</label>
-                                        
-                                        <input type="radio" class="btn-check" 
-                                               name="lymphcat" id="lymph1" value="1">
+
+                                        <input type="radio" class="btn-check" name="lymphcat" id="lymph1" value="1">
                                         <label class="btn btn-outline-primary" for="lymph1">存在转移</label>
                                     </div>
                                 </div>
@@ -339,64 +337,117 @@
 
                             <!-- 提交按钮 -->
                             <div class="d-grid mt-5">
-                                <button type="submit" class="btn submit-btn" style="color: white;background-color: #151578;">
+                                <button type="submit" class="btn submit-btn"
+                                    style="color: white;background-color: #151578;">
                                     <i class="bi bi-cpu-fill me-3"></i>立即进行生存分析
                                 </button>
                                 <div class="alert-message mt-4" id="errorMessage"></div>
                             </div>
                         </form>
+
+                        <!-- 结果显示区域 -->
+                        <div id="result" class="mt-5"></div>
                     </div>
                 </div>
             </div>
         </div>
     </main>
 
-    
+    <!-- 引入Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 增强表单验证逻辑并提交到后端
+        document.getElementById('clinicalForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            clearErrors();
 
-    
-   <!-- 引入Bootstrap JS -->
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-   <script>
-       // 增强表单验证逻辑
-       document.getElementById('clinicalForm').addEventListener('submit', function(e) {
-           e.preventDefault();
-           clearErrors();
+            // 验证年龄
+            const ageInput = this.elements.age;
+            if (ageInput.value < 0 || ageInput.value > 120) {
+                showError(ageInput, '年龄需在 0-120 岁之间');
+                return;
+            }
 
-           // 验证年龄
-           const ageInput = this.elements.age;
-           if(ageInput.value < 0 || ageInput.value > 120) {
-               showError(ageInput, '年龄需在 0-120 岁之间');
-               return;
-           }
+            // 验证 CEA
+            const ceaInput = this.elements.cea;
+            if (ceaInput.value < 0 || (ceaInput.value > 1000 && ![998, 999].includes(+ceaInput.value))) {
+                showError(ceaInput, 'CEA值无效：正常范围 0-1000，未知请填 998/999');
+                return;
+            }
 
-           // 验证CEA
-           const ceaInput = this.elements.cea;
-           if(ceaInput.value < 0 || (ceaInput.value > 1000 && ![998,999].includes(+ceaInput.value))) {
-               showError(ceaInput, 'CEA值无效：正常范围 0-1000，未知请填 998/999');
-               return;
-           }
+            // 收集表单数据
+            const formData = new FormData(this);
+            const data = {};
+            formData.forEach((value, key) => {
+                data[key] = value;
+            });
 
-           // 提交表单
-           if(this.checkValidity()) {
-               this.submit();
-           }
-       });
+            // 确保单选按钮和下拉菜单的值被正确收集
+            data['gender_code'] = this.querySelector('input[name="gender_code"]:checked')?.value || '';
+            data['PNI'] = this.querySelector('input[name="PNI"]:checked')?.value || '';
+            data['lymphcat'] = this.querySelector('input[name="lymphcat"]:checked')?.value || '';
+            data['grade_code'] = this.querySelector('select[name="grade_code"]').value;
 
-       function showError(input, message) {
-           const errorDiv = document.getElementById('errorMessage');
-           errorDiv.textContent = message;
-           errorDiv.style.display = 'block';
-           input.style.borderColor = '#ff4757';
-           input.scrollIntoView({ behavior: 'smooth' });
-       }
+            // 验证所有字段是否填写
+            const requiredFields = ['age', 'gender_code', 'tumor.size', 'cea', 'grade_code', 'PNI', 'lymphcat'];
+            for (const field of requiredFields) {
+                if (!data[field]) {
+                    showError(this.elements[field] || document.querySelector(`[name="${field}"]`), `${field} 是必填项`);
+                    return;
+                }
+            }
 
-       function clearErrors() {
-           document.getElementById('errorMessage').style.display = 'none';
-           document.querySelectorAll('.form-control').forEach(input => {
-               input.style.borderColor = '#00f3ff';
-           });
-       }
-   </script>
+            // 发送请求到后端
+            fetch('http://localhost:5000/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(result => {
+                    if (result.error) {
+                        document.getElementById('result').innerHTML = `
+                            <p class="error">错误: ${result.error}</p>
+                            ${result.details ? `<p>详情: ${result.details}</p>` : ''}
+                            ${result.output ? `<p>输出: ${result.output}</p>` : ''}
+                        `;
+                    } else {
+                        document.getElementById('result').innerHTML = `
+                            <h2 style="color: var(--科技蓝);">预测结果</h2>
+                            <p>患者风险分数: ${result.risk_score}</p>
+                            <p>风险分组: ${result.risk_group}</p>
+                            <img src="${result.survival_curve_path}" alt="生存曲线" style="max-width: 100%;">
+                        `;
+                    }
+                })
+                .catch(error => {
+                    console.error('请求错误:', error);
+                    document.getElementById('result').innerHTML = `<p class="error">请求失败: ${error.message}</p>`;
+                });
+        });
+
+        function showError(input, message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            input.style.borderColor = '#ff4757';
+            input.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearErrors() {
+            document.getElementById('errorMessage').style.display = 'none';
+            document.querySelectorAll('.form-control, .form-select, .btn-check').forEach(input => {
+                input.style.borderColor = '#00f3ff';
+            });
+        }
+    </script>
 </body>
 
 </html>

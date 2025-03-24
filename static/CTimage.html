@@ -1,11 +1,201 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-    <title>CT Image Analysis</title>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>CT影像分析</title>
+    <meta name="description" content="QTP-GMD Genomics and Bioinformatics Tools">
+    <meta name="keywords" content="genomics, tools, blast, jbrowse, primer3, enrichment">
+
+    
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="assets/css/main.css" rel="stylesheet">
     <style>
+        .diagnosis-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .image-preview {
+            border: 2px dashed #3fbbc0;
+            position: relative;
+        }
+        .highlight-overlay {
+            position: absolute;
+            border: 2px solid #ff4757;
+            background: rgba(255,71,87,0.1);
+            pointer-events: none;
+        }
+        .report-badge {
+            font-size: 1.2rem;
+            padding: 0.8em 1.5em;
+        }
+        .tool-content-area {
+            display: none; 
+        }
+        .tool-content-area.active {
+             display: block;
+        }
+        .tools-menu-item.active {
+            
+             border-radius: 4px;
+        }
+        :root {
+            --科技蓝: #00f3ff;
+            --深空黑: #0a0a1a;
+            --电子紫: #6c00ff;
+            --数据绿: #00ff88;
+            --霓虹粉: #ff00ff;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0a0a2a, #000013);
+            color: #e0e0ff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .header {
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--科技蓝);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .tools-sidebar {
+            background: linear-gradient(160deg, rgba(16, 16, 48, 0.9), rgba(32, 32, 64, 0.9));
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--科技蓝);
+            box-shadow: 5px 0 15px rgba(0, 243, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .tools-menu-item a {
+            color: #a0a0ff;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tools-menu-item a:before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 243, 255, 0.2), 
+                transparent);
+            transition: 0.5s;
+        }
+
+        .tools-menu-item.active a,
+        .tools-menu-item a:hover {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--科技蓝);
+            transform: translateX(10px);
+        }
+
+        .tools-menu-item a:hover:before {
+            left: 100%;
+        }
+
+        .diagnosis-card {
+            background: rgba(16, 16, 48, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .diagnosis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn-tool-primary {
+            background: linear-gradient(45deg, var(--电子紫), var(--科技蓝));
+            border: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .btn-tool-primary:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255,255,255,0.2), 
+                transparent);
+            transform: rotate(45deg);
+            animation: btnGlow 3s infinite;
+        }
+
+        @keyframes btnGlow {
+            0% { transform: rotate(45deg) translateX(-150%); }
+            100% { transform: rotate(45deg) translateX(150%); }
+        }
+
+        #diagnosisChart {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            border: 1px solid var(--科技蓝);
+            padding: 1rem;
+        }
+
+        .image-preview {
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: 
+                linear-gradient(#000, #000) padding-box,
+                linear-gradient(45deg, var(--电子紫), var(--科技蓝)) border-box;
+        }
+        
+        
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .scan-effect:after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, var(--科技蓝), transparent);
+            animation: scanLine 3s infinite;
+        }
+        .navmenu li a{
+            color:white;
+        }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f0f2f5;
@@ -16,7 +206,7 @@
 
         h1 {
             text-align: center;
-            color: #2c3e50;
+            color: white;
             margin-bottom: 30px;
         }
 
@@ -27,6 +217,7 @@
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background-color: #0a0a1a;
         }
 
         input[type="file"],
@@ -37,6 +228,7 @@
             font-size: 16px;
             border-radius: 5px;
             border: 1px solid #ddd;
+            color: white;
         }
 
         button {
@@ -64,7 +256,7 @@
         }
 
         .image-box {
-            background: #fff;
+            background: #0a0a2a;
             padding: 15px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -74,7 +266,7 @@
 
         .image-box h4 {
             margin: 10px 0;
-            color: #34495e;
+            color: white;
         }
 
         img,
@@ -84,16 +276,49 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+        .header.sticky-top {
+    position: static !important; /* 强制使用默认定位 */
+}
     </style>
 </head>
 
 <body>
+    <header  class="header sticky-top">
+
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-end">
+
+                <nav id="navmenu" class="navmenu" >
+                    <ul>
+                        <li><a href="index.html" class="active">首页</a></li>
+                        
+                       
+                        <li class="dropdown active"><a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                          <ul>
+                            <li><a href="WSI.html">WSI图像分析</a></li>
+                            <li><a href="CTimage.html">CT图像分析</a></li>
+                            
+                          </ul>
+                        </li>
+                    
+                        <li><a href="survival.html">生存分析</a></li>
+                    
+                        <li><a href="RNA_visualize.html">基因</a></li>
+                    
+                        
+                      </ul>
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
+                </nav>
+                <a class="cta-btn" href="login.html" >登录</a>
+            </div>
+        </div>
+    </header>
     <h1>CT Image Analysis</h1>
     <div class="controls">
         <input type="file" id="ctFile" accept=".dcm,image/*">
         <button onclick="uploadFile()">Upload</button>
         <h3>Preprocess Options</h3>
-        <select id="preprocessMethod">
+        <select id="preprocessMethod" style="background-color: #0a0a1a;">
             <option value="gaussian">Gaussian Filter</option>
             <option value="median">Median Filter</option>
             <option value="wavelet">Wavelet Transform</option>

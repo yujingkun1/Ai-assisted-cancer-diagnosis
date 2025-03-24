@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register Your Account!</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #3FBBC0 0%,  #e4f6ff 100%);
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .phone-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-prefix {
+            width: 120px;
+        }
+
+        .gender-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .gender-option {
+            flex: 1;
+            position: relative;
+        }
+
+        .gender-option input {
+            display: none;
+        }
+
+        .gender-option label {
+            display: block;
+            padding: 12px;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .gender-option input:checked + label {
+            border-color: #667eea;
+            background: #ebf4ff;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #a0aec0;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        button:hover {
+            background: #3FBBC0;
+        }
+        a{
+            color: #667eea;
+        }
+        .name-group {
+            display: flex;
+            gap: 10px;
+        }
+        .name-group input {
+            flex: 1;
+        }
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Register Your Account!</h1>
+        <form id="registerForm">
+            <!-- name -->
+            <div class="form-group">
+                <label for="name">Username</label>
+                <input type="text" id="name" required>
+            </div>
+
+            <div class="form-group">
+                <label>Full Name</label>
+                <div class="name-group">
+                    <input type="text" id="firstName" placeholder="First Name" required>
+                    <input type="text" id="lastName" placeholder="Last Name" required>
+                </div>
+            </div>
+
+            <!-- gender -->
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="gender-group">
+                    <div class="gender-option">
+                        <input type="radio" name="gender" id="male" value="male" checked>
+                        <label for="male">Male</label>
+                    </div>
+                    <div class="gender-option">
+                        <input type="radio" name="gender" id="female" value="female">
+                        <label for="female">Female</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="institution">Institution</label>
+                <input type="text" id="institution" required>
+            </div>
+
+            <!--  Job Type -->
+            <div class="form-group">
+                <label for="jobType">Job Type</label>
+                <select id="jobType" required>
+                    <option value="">Please choose</option>
+                    <option>Student</option>
+                    <option>Teacher</option>
+                    <option>Researcher</option>
+                    <option>Engineer</option>
+                    <option>Other</option>
+                </select>
+            </div>
+            <!-- email -->
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <!-- phone number -->
+            <div class="form-group">
+                <label>Phone number</label>
+                <div class="phone-group">
+                    <select class="phone-prefix">
+                        <option>+86</option>
+                        <option>+1</option>
+                        <option>+81</option>
+                        <option>+82</option>
+                        <option>+852</option>
+                    </select>
+                    <input type="tel" pattern="[0-9]{10,11}" required>
+                </div>
+            </div>
+
+            <!-- password -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="password-container">
+                    <input type="password" id="password" required minlength="8">
+                    <span class="toggle-password" onclick="togglePassword()">?</span>
+                </div>
+            </div>
+
+            <!-- confirm password -->
+            <div class="form-group">
+                <label for="confirmPassword">Confirm Password</label>
+                <div class="password-container">
+                    <input type="password" id="confirmPassword" required minlength="8">
+                    <span class="toggle-password" onclick="toggleConfirmPassword()">?</span>
+                </div>
+            </div>
+
+            <!-- Region -->
+            <div class="form-group">
+                <label for="country">Country or Region</label>
+                <select id="country" required>
+                    <option value="">Please choose</option>
+                    <option>China</option>
+                    <option>Japan</option>
+                    <option>Britain</option>
+                    <option>Russian</option>
+                    <option>United States of America</option>
+                </select>
+            </div>
+
+            <button type="submit">Register</button>
+            <br>
+            <a href="login.html">Back to login</a>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordField = document.getElementById('password');
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+        }
+
+        function toggleConfirmPassword() {
+            const confirmPasswordField = document.getElementById('confirmPassword');
+            const type = confirmPasswordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            confirmPasswordField.setAttribute('type', type);
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (password !== confirmPassword) {
+                alert('Passwords do not match. Please try again.');
+                return;
+            }
+
+            alert('Register successfully');
+        });
+    </script>
+</body>
+</html>

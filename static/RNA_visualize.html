@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RNA-seq Visualization</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #e0eafc, #cfdef3);
+            margin: 0;
+            padding: 20px;
+            color: #2c3e50;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #34495e;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls {
+            max-width: 800px;
+            margin: 0 auto 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(5px);
+        }
+
+        input[type="file"],
+        button {
+            margin: 10px 0;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 25px;
+            border: none;
+            background: #3498db;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        input[type="file"] {
+            background: none;
+            color: #34495e;
+            border: 2px dashed #3498db;
+            padding: 10px;
+        }
+
+        button:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .chart-box {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .chart-box h4 {
+            margin: 0 0 15px;
+            color: #34495e;
+            font-size: 1.2em;
+        }
+
+        canvas {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>RNA-seq Visualization Dashboard</h1>
+    <div class="controls">
+        <input type="file" id="rnaFile" accept=".csv">
+        <button onclick="uploadBulk()">Upload RNA-seq Data</button>
+        <button onclick="visualizeBulk()">Visualize Data</button>
+    </div>
+
+    <div id="container">
+        <div class="chart-box">
+            <h4>Expression Heatmap</h4>
+            <canvas id="heatmapChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Volcano Plot</h4>
+            <canvas id="volcanoChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>PCA Plot</h4>
+            <canvas id="pcaChart"></canvas>
+        </div>
+        <div class="chart-box">
+            <h4>Expression Box Plot</h4>
+            <canvas id="boxChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        let bulkData;
+
+        function uploadBulk() {
+            const fileInput = document.getElementById('rnaFile');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            axios.post('http://localhost:5000/upload_bulk', formData)
+                .then(response => {
+                    bulkData = response.data.bulk_data;
+                    alert('RNA-seq data uploaded successfully!');
+                });
+        }
+
+        function visualizeBulk() {
+            axios.post('http://localhost:5000/visualize_bulk', { bulk_data: bulkData })
+                .then(response => {
+                    drawHeatmap(response.data.heatmap_data);
+                    drawVolcano(response.data.volcano_data);
+                    drawPCA(response.data.pca_data);
+                    drawBoxPlot(response.data.box_data);
+                });
+        }
+
+        function drawHeatmap(data) {
+            const ctx = document.getElementById('heatmapChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar', // 模拟热图效果
+                data: {
+                    labels: data.samples,
+                    datasets: data.genes.map((gene, i) => ({
+                        label: gene.name,
+                        data: gene.values,
+                        backgroundColor: `hsl(${i * 360 / data.genes.length}, 70%, 50%)`
+                    }))
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: { x: { title: { display: true, text: 'TPM' } }, y: { title: { display: true, text: 'Samples' } } },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        function drawVolcano(data) {
+            const ctx = document.getElementById('volcanoChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Genes',
+                        data: data.map(g => ({ x: g.logFC, y: -Math.log10(g.pvalue) })),
+                        backgroundColor: data.map(g => g.pvalue < 0.05 ? '#e74c3c' : '#bdc3c7'),
+                        pointRadius: 5
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'Log2 Fold Change' } },
+                        y: { title: { display: true, text: '-Log10 P-value' } }
+                    }
+                }
+            });
+        }
+
+        function drawPCA(data) {
+            const ctx = document.getElementById('pcaChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Samples',
+                        data: data.map(s => ({ x: s.pc1, y: s.pc2 })),
+                        backgroundColor: data.map(s => s.group === 'Tumor' ? '#e74c3c' : '#2ecc71'),
+                        pointRadius: 8
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { title: { display: true, text: 'PC1' } },
+                        y: { title: { display: true, text: 'PC2' } }
+                    }
+                }
+            });
+        }
+
+        function drawBoxPlot(data) {
+            const ctx = document.getElementById('boxChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'box',
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [{
+                        label: 'Expression',
+                        data: Object.values(data).map(d => ({ min: d.min, q1: d.q1, median: d.median, q3: d.q3, max: d.max })),
+                        backgroundColor: 'rgba(52, 152, 219, 0.5)',
+                        borderColor: '#3498db',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    scales: { y: { title: { display: true, text: 'TPM' } } }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,19 +1,10 @@
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Blueprint, request, jsonify, send_from_directory
 import subprocess
 import os
-from flask_cors import CORS
 
-app = Flask(__name__)
-# 显式配置 CORS，允许所有来源，或者指定前端来源
-CORS(app, resources={r"/*": {"origins": "*"}})  # 允许所有来源
-# 如果前端运行在特定地址（如 http://127.0.0.1:5500），可以指定：
-# CORS(app, resources={r"/*": {"origins": "http://127.0.0.1:5500"}})
+survival_bp = Blueprint('survival', __name__)
 
-@app.route('/')
-def index():
-    return app.send_static_file('survival.html')
-
-@app.route('/predict', methods=['POST'])
+@survival_bp.route('/predict', methods=['POST'])
 def predict():
     try:
         data = request.json
@@ -86,12 +77,9 @@ def predict():
         print(f"Exception occurred: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
-@app.route('/output/survival/<path:filename>')
+@survival_bp.route('/output/survival/<path:filename>')
 def predictions(filename):
     try:
         return send_from_directory('output/survival', filename)
     except FileNotFoundError:
         return jsonify({'error': 'File not found'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)

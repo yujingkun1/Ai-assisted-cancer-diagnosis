@@ -8,8 +8,6 @@
     <meta name="description" content="QTP-GMD Genomics and Bioinformatics Tools">
     <meta name="keywords" content="genomics, tools, blast, jbrowse, primer3, enrichment">
 
-    
-
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect">
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
@@ -27,35 +25,11 @@
 
     <!-- Main CSS File -->
     <link href="assets/css/main.css" rel="stylesheet">
+
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
     <style>
-        .diagnosis-card {
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .image-preview {
-            border: 2px dashed #3fbbc0;
-            position: relative;
-        }
-        .highlight-overlay {
-            position: absolute;
-            border: 2px solid #ff4757;
-            background: rgba(255,71,87,0.1);
-            pointer-events: none;
-        }
-        .report-badge {
-            font-size: 1.2rem;
-            padding: 0.8em 1.5em;
-        }
-        .tool-content-area {
-            display: none; 
-        }
-        .tool-content-area.active {
-             display: block;
-        }
-        .tools-menu-item.active {
-            
-             border-radius: 4px;
-        }
         :root {
             --科技蓝: #00f3ff;
             --深空黑: #0a0a1a;
@@ -77,147 +51,13 @@
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
         }
 
-        .tools-sidebar {
-            background: linear-gradient(160deg, rgba(16, 16, 48, 0.9), rgba(32, 32, 64, 0.9));
-            backdrop-filter: blur(15px);
-            border-right: 1px solid var(--科技蓝);
-            box-shadow: 5px 0 15px rgba(0, 243, 255, 0.1);
-            border-radius: 8px;
-            padding: 1rem;
-        }
-
-        .tools-menu-item a {
-            color: #a0a0ff;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 6px;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tools-menu-item a:before {
-            content: '';
-            position: absolute;
-            left: -100%;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(0, 243, 255, 0.2), 
-                transparent);
-            transition: 0.5s;
-        }
-
-        .tools-menu-item.active a,
-        .tools-menu-item a:hover {
-            background: rgba(0, 243, 255, 0.1);
-            color: var(--科技蓝);
-            transform: translateX(10px);
-        }
-
-        .tools-menu-item a:hover:before {
-            left: 100%;
-        }
-
-        .diagnosis-card {
-            background: rgba(16, 16, 48, 0.8);
-            border: 1px solid rgba(0, 243, 255, 0.3);
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
-            transition: transform 0.3s ease;
-        }
-
-        .diagnosis-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
-        }
-
-        .btn-tool-primary {
-            background: linear-gradient(45deg, var(--电子紫), var(--科技蓝));
-            border: none;
-            color: white;
-            position: relative;
-            overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .btn-tool-primary:after {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, 
-                transparent, 
-                rgba(255,255,255,0.2), 
-                transparent);
-            transform: rotate(45deg);
-            animation: btnGlow 3s infinite;
-        }
-
-        @keyframes btnGlow {
-            0% { transform: rotate(45deg) translateX(-150%); }
-            100% { transform: rotate(45deg) translateX(150%); }
-        }
-
-        #diagnosisChart {
-            background: rgba(20, 20, 40, 0.7);
-            border-radius: 8px;
-            border: 1px solid var(--科技蓝);
-            padding: 1rem;
-        }
-
-        .image-preview {
-            position: relative;
-            border: 2px solid transparent;
-            border-radius: 8px;
-            background: 
-                linear-gradient(#000, #000) padding-box,
-                linear-gradient(45deg, var(--电子紫), var(--科技蓝)) border-box;
-        }
-        
-        
-        @keyframes scanLine {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(100%); }
-        }
-
-        .scan-effect:after {
-            content: '';
-            position: absolute;
-            height: 2px;
-            width: 100%;
-            background: linear-gradient(90deg, transparent, var(--科技蓝), transparent);
-            animation: scanLine 3s infinite;
-        }
-        .navmenu li a{
-            color:white;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f0f2f5;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-        }
-
-        h1 {
-            text-align: center;
-            color: white;
-            margin-bottom: 30px;
-        }
-
         .controls {
             max-width: 800px;
             margin: 0 auto 20px;
-            background: #fff;
+            background: #0a0a1a;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            background-color: #0a0a1a;
         }
 
         input[type="file"],
@@ -229,11 +69,11 @@
             border-radius: 5px;
             border: 1px solid #ddd;
             color: white;
+            background-color: #0a0a2a;
         }
 
         button {
             background-color: #3498db;
-            color: white;
             border: none;
             cursor: pointer;
             transition: background-color 0.3s;
@@ -269,56 +109,53 @@
             color: white;
         }
 
-        img,
-        #threeDCanvas {
+        img {
             width: 100%;
             height: 400px;
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+
+        .navmenu li a {
+            color: white;
+        }
+
         .header.sticky-top {
-    position: static !important; /* 强制使用默认定位 */
-}
+            position: static !important;
+        }
     </style>
 </head>
 
 <body>
-    <header  class="header sticky-top">
-
+    <header class="header sticky-top">
         <div class="branding d-flex align-items-center">
             <div class="container position-relative d-flex align-items-center justify-content-end">
-
-                <nav id="navmenu" class="navmenu" >
+                <nav id="navmenu" class="navmenu">
                     <ul>
                         <li><a href="index.html" class="active">首页</a></li>
-                        
-                       
-                        <li class="dropdown active"><a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
-                          <ul>
-                            <li><a href="WSI.html">WSI图像分析</a></li>
-                            <li><a href="CTimage.html">CT图像分析</a></li>
-                            
-                          </ul>
+                        <li class="dropdown active"><a href="#"><span>医学图像分析</span> <i
+                                    class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <li><a href="WSI.html">WSI图像分析</a></li>
+                                <li><a href="CTimage.html">CT图像分析</a></li>
+                            </ul>
                         </li>
-                    
                         <li><a href="survival.html">生存分析</a></li>
-                    
                         <li><a href="RNA_visualize.html">基因</a></li>
-                    
-                        
-                      </ul>
+                    </ul>
                     <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
                 </nav>
-                <a class="cta-btn" href="login.html" >登录</a>
+                <a class="cta-btn" href="login.html">登录</a>
             </div>
         </div>
     </header>
+
     <h1>CT Image Analysis</h1>
     <div class="controls">
         <input type="file" id="ctFile" accept=".dcm,image/*">
         <button onclick="uploadFile()">Upload</button>
         <h3>Preprocess Options</h3>
-        <select id="preprocessMethod" style="background-color: #0a0a1a;">
+        <select id="preprocessMethod">
             <option value="gaussian">Gaussian Filter</option>
             <option value="median">Median Filter</option>
             <option value="wavelet">Wavelet Transform</option>
@@ -326,7 +163,6 @@
         <button onclick="preprocessImage()">Preprocess</button>
         <button onclick="segmentTumor()">Segment Tumor</button>
         <button onclick="classifyTumor()">Classify Tumor</button>
-        <button onclick="reconstruct3D()">3D Reconstruction</button>
     </div>
 
     <div id="container">
@@ -338,10 +174,6 @@
             <h4>Processed Image</h4>
             <img id="processedImg">
         </div>
-        <div class="image-box">
-            <h4>3D View</h4>
-            <div id="threeDCanvas"></div>
-        </div>
     </div>
 
     <script>
@@ -349,6 +181,10 @@
 
         function uploadFile() {
             const fileInput = document.getElementById('ctFile');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('请先选择一个文件！');
+                return;
+            }
             const formData = new FormData();
             formData.append('file', fileInput.files[0]);
 
@@ -356,73 +192,59 @@
                 .then(response => {
                     originalImageData = response.data.image;
                     document.getElementById('originalImg').src = 'data:image/png;base64,' + originalImageData;
+                })
+                .catch(error => {
+                    console.error('上传失败:', error.response ? error.response.data : error.message);
+                    alert('文件上传失败，请查看控制台了解详情。');
                 });
         }
 
         function preprocessImage() {
             const method = document.getElementById('preprocessMethod').value;
+            if (!originalImageData) {
+                alert('请先上传图像！');
+                return;
+            }
             axios.post('http://localhost:5000/preprocess', { image: originalImageData, method: method })
                 .then(response => {
                     processedImageData = response.data.image;
                     document.getElementById('processedImg').src = 'data:image/png;base64,' + processedImageData;
+                })
+                .catch(error => {
+                    console.error('预处理失败:', error.response ? error.response.data : error.message);
+                    alert('图像预处理失败，请查看控制台了解详情。');
                 });
         }
 
         function segmentTumor() {
+            if (!originalImageData) {
+                alert('请先上传图像！');
+                return;
+            }
             axios.post('http://localhost:5000/segment', { image: originalImageData })
                 .then(response => {
                     processedImageData = response.data.image;
                     document.getElementById('processedImg').src = 'data:image/png;base64,' + processedImageData;
+                })
+                .catch(error => {
+                    console.error('分割失败:', error.response ? error.response.data : error.message);
+                    alert('肿瘤分割失败，请查看控制台了解详情。');
                 });
         }
 
         function classifyTumor() {
+            if (!processedImageData && !originalImageData) {
+                alert('请先上传或处理图像！');
+                return;
+            }
             axios.post('http://localhost:5000/classify', { image: processedImageData || originalImageData })
                 .then(response => {
-                    alert(`Tumor Classification: ${response.data.classification}`);
+                    alert(`肿瘤分类: ${response.data.class === 0 ? '良性' : '恶性'}, 概率: ${response.data.probability.toFixed(4)}`);
+                })
+                .catch(error => {
+                    console.error('分类失败:', error.response ? error.response.data : error.message);
+                    alert('肿瘤分类失败，请查看控制台了解详情。');
                 });
-        }
-
-        function reconstruct3D() {
-            axios.post('http://localhost:5000/reconstruct', { image: processedImageData || originalImageData })
-                .then(response => {
-                    const voxelData = response.data.voxelData;
-                    render3D(voxelData);
-                });
-        }
-
-        function render3D(voxelData) {
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeDCanvas') });
-            renderer.setSize(400, 400);
-
-            const geometry = new THREE.BufferGeometry();
-            const vertices = [];
-            for (let x = 0; x < 10; x++) {
-                for (let y = 0; y < 10; y++) {
-                    for (let z = 0; z < 10; z++) {
-                        if (voxelData[x][y][z] > 0) {
-                            vertices.push(x, y, z);
-                        }
-                    }
-                }
-            }
-            geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-            const material = new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true });
-            const mesh = new THREE.Mesh(geometry, material);
-            scene.add(mesh);
-
-            camera.position.z = 20;
-            renderer.render(scene, camera);
-
-            function animate() {
-                requestAnimationFrame(animate);
-                mesh.rotation.x += 0.01;
-                mesh.rotation.y += 0.01;
-                renderer.render(scene, camera);
-            }
-            animate();
         }
     </script>
 </body>

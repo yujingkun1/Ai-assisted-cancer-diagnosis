@@ -152,7 +152,7 @@
 
     <h1>CT Image Analysis</h1>
     <div class="controls">
-        <input type="file" id="ctFile" accept=".dcm,image/*">
+        <input type="file" id="ctFile" accept=".dcm,.nii,.nii.gz,image/*">
         <button onclick="uploadFile()">Upload</button>
         <h3>Preprocess Options</h3>
         <select id="preprocessMethod">
@@ -174,28 +174,47 @@
             <h4>Processed Image</h4>
             <img id="processedImg">
         </div>
+        <div class="image-box">
+            <h4>Segmented Image</h4>
+            <img id="segmentedImage" style="display: none;">
+        </div>
+
     </div>
 
     <script>
-        let originalImageData, processedImageData;
+        let originalImageData = null;  // 初始化为 null
+        let processedImageData = null;
+        let fullImagePath = null;
 
         function uploadFile() {
             const fileInput = document.getElementById('ctFile');
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('请先选择一个文件！');
+            const file = fileInput.files[0];
+            if (!file) {
+                alert('请先选择一个文件');
                 return;
             }
-            const formData = new FormData();
-            formData.append('file', fileInput.files[0]);
 
-            axios.post('http://localhost:5000/upload', formData)
-                .then(response => {
-                    originalImageData = response.data.image;
-                    document.getElementById('originalImg').src = 'data:image/png;base64,' + originalImageData;
+            const formData = new FormData();
+            formData.append('file', file);
+
+            fetch('http://localhost:5000/upload', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert('上传失败: ' + data.error);
+                    } else {
+                        fullImagePath = data.full_image_path;
+                        originalImageData = data.image;  // 保存原始图像数据
+                        document.getElementById('originalImg').src = 'data:image/png;base64,' + data.image;
+                        alert('上传成功');
+                    }
                 })
                 .catch(error => {
-                    console.error('上传失败:', error.response ? error.response.data : error.message);
-                    alert('文件上传失败，请查看控制台了解详情。');
+                    console.error('错误:', error);
+                    alert('上传失败');
                 });
         }
 
@@ -217,20 +236,33 @@
         }
 
         function segmentTumor() {
-            if (!originalImageData) {
-                alert('请先上传图像！');
-                return;
-            }
-            axios.post('http://localhost:5000/segment', { image: originalImageData })
-                .then(response => {
-                    processedImageData = response.data.image;
-                    document.getElementById('processedImg').src = 'data:image/png;base64,' + processedImageData;
+                if (!fullImagePath) {
+                    alert('请先上传一张图像');
+                    return;
+                }
+
+                fetch('http://localhost:5000/segment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ full_image_path: fullImagePath })  // 确保发送 full_image_path
                 })
-                .catch(error => {
-                    console.error('分割失败:', error.response ? error.response.data : error.message);
-                    alert('肿瘤分割失败，请查看控制台了解详情。');
-                });
-        }
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            alert('分割失败: ' + data.error);
+                        } else {
+                            document.getElementById('segmentedImage').src = 'data:image/png;base64,' + data.image;
+                            document.getElementById('segmentedImage').style.display = 'block';
+                            alert('分割成功');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('错误:', error);
+                        alert('分割失败');
+                    });
+            }
 
         function classifyTumor() {
             if (!processedImageData && !originalImageData) {

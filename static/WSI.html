@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>WSI图像分析</title>
+    <meta name="description" content="QTP-GMD Genomics and Bioinformatics Tools">
+    <meta name="keywords" content="genomics, tools, blast, jbrowse, primer3, enrichment">
+
+    
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="assets/css/main.css" rel="stylesheet">
+    <style>
+        .diagnosis-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .image-preview {
+            border: 2px dashed #3fbbc0;
+            position: relative;
+        }
+        .highlight-overlay {
+            position: absolute;
+            border: 2px solid #ff4757;
+            background: rgba(255,71,87,0.1);
+            pointer-events: none;
+        }
+        .report-badge {
+            font-size: 1.2rem;
+            padding: 0.8em 1.5em;
+        }
+        .tool-content-area {
+            display: none; 
+        }
+        .tool-content-area.active {
+             display: block;
+        }
+        .tools-menu-item.active {
+            
+             border-radius: 4px;
+        }
+        :root {
+            --科技蓝: #00f3ff;
+            --深空黑: #0a0a1a;
+            --电子紫: #6c00ff;
+            --数据绿: #00ff88;
+            --霓虹粉: #ff00ff;
+        }
+
+        body {
+            background: radial-gradient(circle at center, #0a0a2a, #000013);
+            color: #e0e0ff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        .header {
+            background: rgba(10, 10, 26, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--科技蓝);
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+        }
+
+        .tools-sidebar {
+            background: linear-gradient(160deg, rgba(16, 16, 48, 0.9), rgba(32, 32, 64, 0.9));
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--科技蓝);
+            box-shadow: 5px 0 15px rgba(0, 243, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .tools-menu-item a {
+            color: #a0a0ff;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tools-menu-item a:before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 243, 255, 0.2), 
+                transparent);
+            transition: 0.5s;
+        }
+
+        .tools-menu-item.active a,
+        .tools-menu-item a:hover {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--科技蓝);
+            transform: translateX(10px);
+        }
+
+        .tools-menu-item a:hover:before {
+            left: 100%;
+        }
+
+        .diagnosis-card {
+            background: rgba(16, 16, 48, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+
+        .diagnosis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+
+        .btn-tool-primary {
+            background: linear-gradient(45deg, var(--电子紫), var(--科技蓝));
+            border: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+
+        .btn-tool-primary:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255,255,255,0.2), 
+                transparent);
+            transform: rotate(45deg);
+            animation: btnGlow 3s infinite;
+        }
+
+        @keyframes btnGlow {
+            0% { transform: rotate(45deg) translateX(-150%); }
+            100% { transform: rotate(45deg) translateX(150%); }
+        }
+
+        #diagnosisChart {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            border: 1px solid var(--科技蓝);
+            padding: 1rem;
+        }
+
+        .image-preview {
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: 
+                linear-gradient(#000, #000) padding-box,
+                linear-gradient(45deg, var(--电子紫), var(--科技蓝)) border-box;
+        }
+        
+        
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .scan-effect:after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, var(--科技蓝), transparent);
+            animation: scanLine 3s infinite;
+        }
+        .navmenu li a{
+            color:white;
+        }
+        body { 
+            margin: 0;
+            padding: 20px;
+            background: radial-gradient(circle at center, #0a0a2a, #000013);
+            color: #fff;
+            font-family: '微软雅黑', sans-serif;
+        }
+        .container1 {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: 95vh;
+        }
+        .control-panel {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }.viewer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            height: 100%;
+        }
+        .viewer {
+            background: #000;
+            border: 2px solid #3a3a3a;
+            border-radius: 8px;
+            height: 100%;
+            overflow: hidden;
+        }
+        .upload-btn {
+            background: #218338;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: block;
+            text-align: center;
+            border: none;
+            width: 100%;
+        }
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(33,131,56,0.3);
+        }
+        #file-input {
+            display: none;
+        }
+        .metadata {
+            margin-top: 20px;
+            padding: 15px;
+            background: #333;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .prediction-item {
+            margin: 12px 0;
+            padding: 8px;
+            background: #2d2d2d;
+            border-radius: 6px;
+        }
+        .confidence-bar {
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            margin-top: 8px;
+        }
+        .confidence-fill {
+            height: 100%;
+            width: 0%;
+            background: #1e3a8a;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .header.sticky-top {
+    position: static !important;
+}
+    </style>
+</head>
+
+<body>
+    <header  class="header sticky-top">
+
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-end">
+
+                <nav id="navmenu" class="navmenu" >
+                    <ul>
+                        <li><a href="index.html">首页</a></li>
+                        
+                       
+                        <li class="active" style="color: white;"><a href="#"><span>医学图像分析</span> </a>
+                          
+                        </li>
+                    
+                        <li><a href="table.html">生存分析</a></li>
+                    
+                        <li><a href="RNA_visualize.html">基因</a></li>
+                    
+                        
+                      </ul>
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
+                </nav>
+                <a class="cta-btn" href="login.html" >登录</a>
+            </div>
+        </div>
+    </header>
+    <div class="container1">
+        <div class="control-panel">
+            
+            <h2 style="margin-top: 0;color: white;">影像分析</h2>
+            <div class="mb-4 text-end">
+                <a href="CTimage.html" 
+                   class="analysis-home-btn"
+                   style="display: inline-flex;
+                          align-items: center;
+                          padding: 0.6rem 1.5rem;
+                          color: white;
+                          border-radius: 20px;
+                          text-decoration: none;
+                          transition: all 0.3s ease;
+                          border: 1px solid white;
+                          margin-bottom: 1.5rem;">
+                    CT图像分析
+                </a>
+            </div>
+            <label class="upload-btn" style="width: auto;">
+                上传图像
+                <input type="file" id="file-input" accept=".jpg,.jpeg,.png">
+            </label>
+            <button class="upload-btn" id="analyze-btn" style="background: #1e3a8a; margin-top: 15px;">
+                开始分析
+            </button>
+
+            <div class="metadata">
+                <h3 style="color: white;">分析报告</h3>
+                <div class="prediction-item" style="margin-bottom: 1.5rem;">
+                    <div style="color: #a0a0ff; font-size: 0.95em; letter-spacing: 1px;">
+                        <i class="bi bi-shield-exclamation me-2"></i>病变类型
+                    </div>
+                    <div id="diagnosis" 
+                         style="font-weight: 700; 
+                                font-size: 1.4rem;
+                                color: var(--数据绿);
+                                margin: 12px 0;">
+                        
+                    </div>
+                </div>
+        
+                <!-- 置信度 -->
+                <div class="prediction-item">
+                    <div style="color: #a0a0ff; font-size: 0.95em; letter-spacing: 1px;">
+                        <i class="bi bi-speedometer2 me-2"></i>置信度
+                    </div>
+                    <div id="confidence-value" 
+                         style="font-size: 1.3rem;
+                                color: var(--科技蓝);
+                                margin: 10px 0 15px;">
+                    </div>
+                    <div class="confidence-bar" 
+                         style="height: 8px; 
+                                background: rgba(255,255,255,0.1); 
+                                border-radius: 4px;
+                                overflow: hidden;">
+                        <div class="confidence-fill" 
+                             id="confidence-fill"
+                             style="width: 99.98%;
+                                    height: 100%;
+                                    background: linear-gradient(90deg, var(--电子紫), var(--科技蓝));
+                                    border-radius: 4px;
+                                    box-shadow: 0 0 8px rgba(0, 243, 255, 0.3);">
+                        </div>
+                    </div>
+                </div>
+        
+                <!-- 底部信息 -->
+                <div style="margin-top: 2rem; color: #6c757d; font-size: 0.85em;">
+                    <div style="color: white;"><i class="bi bi-clock-history me-2" style="color: white;"></i>更新时间: 2023-12-20 14:30</div>
+                    <div class="mt-2" style="color: white;"><i class="bi bi-cpu me-2"></i>模型版本: GMD-2023.12</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="viewer-container">
+            <div id="original-viewer" class="viewer"></div>
+            <div id="result-viewer" class="viewer"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
+    <script>
+        // 初始化双视图查看器
+        const viewers = {
+            original: OpenSeadragon({
+                element: "original-viewer",
+                prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/images/",
+                showNavigator: true,
+                navigatorPosition: "BOTTOM_RIGHT"
+            }),
+            result: OpenSeadragon({
+                element: "result-viewer",
+                prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/images/",
+                showNavigator: true,
+                navigatorPosition: "BOTTOM_RIGHT"
+            })
+        };
+
+        // 图像处理工具函数
+        const processImage = (imageData) => {
+            const data = imageData.data;
+            
+            // 简单边缘检测算法
+            for(let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i+1];
+                const b = data[i+2];
+                
+                // 灰度处理
+                const avg = (r + g + b) / 3;
+                
+                // 边缘增强
+                const edge = avg > 128 ? 255 : 0;
+                
+                data[i] = edge;     // R
+                data[i+1] = edge; // G 
+                data[i+2] = edge;  // B
+            }
+            return imageData;
+        };
+
+        // 文件处理
+        document.getElementById('file-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                viewers.original.open({
+                    type: 'image',
+                    url: event.target.result
+                });
+            };
+            reader.readAsDataURL(file);
+        });
+
+        // 分析功能实现
+        document.getElementById('analyze-btn').addEventListener('click', () => {
+            const fileInput = document.getElementById('file-input');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('请先选择医学图像文件');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                // 创建临时Canvas处理图像
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    // 执行图像处理
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const processedData = processImage(imageData);
+                    ctx.putImageData(processedData, 0, 0);
+                    
+                    // 显示处理结果
+                    const resultUrl = canvas.toDataURL();
+                    viewers.result.open({
+                        type: 'image',
+                        url: resultUrl
+                    });
+
+                    // 模拟诊断结果
+                    const mockResults = [
+                        { label: "良性病变", confidence: 0.25 },
+                        { label: "炎性改变", confidence: 0.65 },
+                        { label: "恶性肿瘤", confidence: 0.92 }
+                    ];
+                    const randomResult = mockResults[Math.floor(Math.random() * mockResults.length)];
+                    
+                    document.getElementById('diagnosis').textContent = randomResult.label;
+                    document.getElementById('confidence-value').textContent = 
+                        `${(randomResult.confidence * 100).toFixed(1)}%`;
+                    document.getElementById('confidence-fill').style.width = 
+                        `${randomResult.confidence * 100}%`;
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+
+</html>

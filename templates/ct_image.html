@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>CT影像分析</title>
+    <meta name="description" content="QTP-GMD Genomics and Bioinformatics Tools">
+    <meta name="keywords" content="genomics, tools, blast, jbrowse, primer3, enrichment">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="/static/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+    <!-- Main CSS File -->
+    <link href="/static/assets/css/main.css" rel="stylesheet">
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        :root {
+            --zh-font: 'Calibre', sans-serif;
+        }
+    
+        body,
+        body *:not(.bi):not(.fas):not([class*=" icon-"]),
+        .btn,
+        .form-control,
+        .form-label,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            font-family: var(--zh-font) !important;
+            letter-spacing: 0.05em;
+        }
+    
+        body {
+            background-color: aliceblue;
+        }
+    
+        .controls {
+            max-width:60%;
+            margin: 0 auto 20px;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        input[type="file"],
+        select,
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+    
+        button {
+            background-color: #3498db;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+    
+        button:hover {
+            background-color: #2980b9;
+        }
+    
+        button:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+    
+        #container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+    
+        .image-box {
+            padding: 15px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 400px;
+        }
+    
+        .image-box h4 {
+            margin: 10px 0;
+    
+        }
+    
+        .image-box img {
+            width: 100%;
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    
+    
+    
+        .header.sticky-top {
+            position: static !important;
+        }
+    
+    
+        :root {
+            --nav-primary: #3fbbc0;
+            --nav-secondary: rgba(63, 187, 192, 0.1);
+        }
+    
+        .controls {
+            margin-top: 6px;
+            border: 1.5px solid;
+        }
+    
+        button {
+            background-color: #00bcd4;
+            border: 1px solid rgba(63, 187, 192, 0.5);
+            border-radius: 25px;
+            padding: 12px 25px;
+            color: white;
+        }
+    
+        button:hover {
+            background-color: #00bcd4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+    
+        input[type="file"],
+        select {
+    
+            border: 2px solid var(--nav-primary);
+    
+            transition: all 0.3s ease;
+        }
+    
+        input[type="file"]:hover,
+        select:hover {
+    
+            box-shadow: 0 0 10px var(--nav-secondary);
+        }
+    
+        .image-box {
+    
+    
+            box-shadow: 0 0 20px var(--nav-secondary);
+            transition: transform 0.3s ease;
+        }
+    
+        .image-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+    
+        .image-box img {
+            border: 2px solid;
+            box-shadow: inset 0 0 10px var(--nav-secondary);
+        }
+    
+        h1 {
+            position: relative;
+            padding-bottom: 15px;
+        }
+    
+        h1::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg,
+                    transparent,
+                    var(--nav-primary),
+                    transparent);
+        }
+    
+        .controls h3,
+        #container h4 {
+            color: #0A2347;
+            font-weight: 550;
+        }
+    
+        .hero-banner {
+            position: relative;
+            height: 400px;
+            background: url('assets/img/hero-carousel/ct_banner.png') center/cover no-repeat;
+            border-radius: 15px;
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+    
+        .banner-content {
+            text-align: center;
+            padding: 30px;
+            max-width: 800px;
+            color: white;
+        }
+    
+        .banner-title {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    
+        .banner-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+    
+        h1.text-center {
+            margin-top: 0 !important;
+            padding-top: 20px;
+        }
+    
+        .features-section {
+            padding: 0 0;
+            margin-top: 0;
+            background-color: aliceblue;
+        }
+    
+        .feature-card {
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px;
+            transition: transform 0.3s ease;
+    
+        }
+    
+    
+    
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--nav-primary);
+            margin-bottom: 20px;
+        }
+    
+        .feature-divider {
+            width: 60px;
+            height: 2px;
+            background: var(--nav-primary);
+            margin: 20px 0;
+        }
+    
+        .feature-title {
+            color: #0A2347;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+    
+        .feature-text {
+            color: #0A2347;
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+    
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo {
+            height: 100%;
+        }
+        .image-box canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        .image-box {
+            position: relative; /* Ensure the canvas is positioned relative to the image-box */
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header sticky-top">
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+                <!-- 左侧 Logo 和 网站名 -->
+                <a href=" " class="logo d-flex align-items-center me-auto">
+                    <img src="/static/assets/img/logo.jpg" alt="">
+                    <strong style="font-size: 23px;">癌影云析</strong>
+                </a>
+    
+                <!-- 右侧导航菜单 -->
+                <nav id="navmenu" class="navmenu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li class="dropdown active">
+                            <a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <li><a href="/wsi" class="active">WSI图像分析</a></li>
+                                <li><a href="/api/ct" >CT图像分析</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/survival">生存分析</a></li>
+                        <li><a href="/rna_visualize">基因</a></li>
+                    </ul>
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
+                </nav>
+    
+                <!-- 登录按钮 -->
+                <a class="cta-btn" href="/auth/login">登录</a>
+            </div>
+        </div>
+    </header>
+
+    <section class="hero-banner"
+        style="background: url('/static/assets/img/hero-carousel/ct.png') no-repeat center center; background-size: cover;">
+        <div class="banner-content" >
+            <h2 class="banner-title" style="color: white; font-weight:bold;">CT影像智能分析平台</h2>
+            <p class="banner-text" style="color: white;">
+                基于SAM模型的医学影像分析系统，提供从图像预处理到病灶分割的解决方案。
+                兼容多种图像格式，模型DSC指数91.3%，能够减少82.95%标注时间。
+            </p>
+            <button class="btn btn-light btn-lg"
+                style="border-radius: 25px; padding: 12px 35px; background-color: #00bcd4; border: 1px solid rgba(63, 187, 192, 0.5); color: white;"
+                onclick="scrollToContainer()">
+                开始分析
+            </button>
+        </div>
+    </section>
+
+
+    <section class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <h3 class="feature-title">多种格式影像采集</h3>
+                <p class="feature-text">
+                    既支持DICOM、NIfTI等医学影像格式，
+                    也兼容png, jpg等普通影像格式
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3 class="feature-title">AI智能分割</h3>
+                <p class="feature-text">
+                    基于SAM模型实现病灶分割，并提供轻量级快速推理模型
+                    基于提示框自动分割，DSC指数达91.3%，能够减少82.95%标注时间
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3 class="feature-title">多种预处理方式</h3>
+                <p class="feature-text">
+                    支持高斯滤波，中值滤波，小波变换等多种预处理方式，
+                    对不同图像提供个性化处理
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <div class="controls" id="main-container">
+        <input type="file" id="ctFile" accept=".dcm,.nii,.nii.gz,image/*">
+        <button id="btnUpload">上传</button>
+        <h3>预处理选项</h3>
+        <select id="preprocessMethod">
+            <option value="gaussian">高斯滤波</option>
+            <option value="median">中值滤波</option>
+            <option value="wavelet">小波变换</option>
+        </select>
+        <button id="btnPreprocess">预处理</button>
+        <button id="btnSegment">分割肿瘤</button>
+    </div>
+
+    <div id="container">
+        <div class="image-box">
+            <h4>初始图像</h4>
+            <canvas id="drawCanvas"></canvas>
+            <img id="originalImg" alt="">
+        </div>
+        <div class="image-box">
+            <h4>处理后图像</h4>
+            <img id="processedImg" alt="">
+        </div>
+        <div class="image-box">
+            <h4>分割图像</h4>
+            <img id="segmentedImage" alt="">
+        </div>
+    </div>
+
+    <script>
+        let origH, origW;
+        let b64Image; // 存储原始（或预处理后）图像的 base64 数据
+        let isDrawing = false, startX, startY, box;
+
+        // 初始化 canvas
+        const drawCanvas = document.getElementById('drawCanvas');
+        const ctxDraw = drawCanvas.getContext('2d');
+
+        // 上传按钮逻辑
+        document.getElementById('btnUpload').onclick = () => {
+            const file = document.getElementById('ctFile').files[0];
+            if (!file) {
+                alert('请先选择文件');
+                return;
+            }
+
+            // 验证文件格式
+            const validExtensions = ['.dcm', '.nii', '.nii.gz', '.png', '.jpg', '.jpeg'];
+            if (!validExtensions.some(ext => file.name.toLowerCase().endsWith(ext))) {
+                alert('不支持的文件格式，仅支持：' + validExtensions.join(', '));
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            // 使用完整的后端 URL（根据你的后端地址调整）
+            axios.post('http://localhost:5000/api/ct/upload', formData)
+                .then(res => {
+                    const data = res.data;
+                    if (data.error || !data.image) {
+                        alert('上传失败：' + (data.error || '服务器未返回图像数据'));
+                        return;
+                    }
+
+                    origH = data.height;
+                    origW = data.width;
+                    b64Image = data.image;
+
+                    // 设置 canvas 尺寸（与图像一致）
+                    drawCanvas.width = origW;
+                    drawCanvas.height = origH;
+
+                    // 显示初始图像
+                    document.getElementById('originalImg').src = 'data:image/png;base64,' + b64Image;
+
+                    // 启用按钮
+                    document.getElementById('btnPreprocess').disabled = false;
+                    document.getElementById('btnSegment').disabled = false;
+                })
+                .catch(error => {
+                    console.error('上传错误:', error);
+                    alert('上传失败：' + (error.response?.data?.error || '请检查网络或后端服务'));
+                });
+        };
+
+        // 画框逻辑
+        drawCanvas.onmousedown = e => {
+            isDrawing = true;
+            const rect = drawCanvas.getBoundingClientRect();
+            startX = e.clientX - rect.left;
+            startY = e.clientY - rect.top;
+            ctxDraw.clearRect(0, 0, drawCanvas.width, drawCanvas.height); // 清除之前的框
+        };
+
+        drawCanvas.onmousemove = e => {
+            if (!isDrawing) return;
+            const rect = drawCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const w = x - startX;
+            const h = y - startY;
+            ctxDraw.clearRect(0, 0, drawCanvas.width, drawCanvas.height);
+            ctxDraw.strokeStyle = 'red';
+            ctxDraw.lineWidth = 2;
+            ctxDraw.strokeRect(startX, startY, w, h);
+        };
+
+        drawCanvas.onmouseup = e => {
+            isDrawing = false;
+            const rect = drawCanvas.getBoundingClientRect();
+            const endX = e.clientX - rect.left;
+            const endY = e.clientY - rect.top;
+            box = [startX, startY, endX, endY].map(v => Math.round(v));
+            // 保持框可见
+            ctxDraw.strokeStyle = 'red';
+            ctxDraw.lineWidth = 2;
+            ctxDraw.strokeRect(startX, startY, endX - startX, endY - startY);
+        };
+
+        // 预处理逻辑
+        document.getElementById('btnPreprocess').onclick = () => {
+            const method = document.getElementById('preprocessMethod').value;
+            if (!b64Image) {
+                alert('请先上传图像');
+                return;
+            }
+
+            axios.post('http://localhost:5000/api/ct/preprocess', { image: b64Image, method })
+                .then(res => {
+                    const data = res.data;
+                    if (data.error || !data.image) {
+                        alert('预处理失败：' + (data.error || '服务器未返回图像数据'));
+                        return;
+                    }
+
+                    b64Image = data.image;
+                    document.getElementById('processedImg').src = 'data:image/png;base64,' + b64Image;
+                })
+                .catch(error => {
+                    console.error('预处理错误:', error);
+                    alert('预处理失败：' + (error.response?.data?.error || '请检查网络或后端服务'));
+                });
+        };
+
+        // 分割逻辑
+        document.getElementById('btnSegment').onclick = () => {
+            if (!b64Image) {
+                alert('请先上传图像');
+                return;
+            }
+            if (!box) {
+                alert('请先在图像上画框');
+                return;
+            }
+
+            axios.post('http://localhost:5000/api/ct/segment', { box })
+                .then(res => {
+                    const data = res.data;
+                    if (data.error || !data.mask) {
+                        alert('分割失败：' + (data.error || '服务器未返回掩码数据'));
+                        return;
+                    }
+
+                    document.getElementById('segmentedImage').src = 'data:image/png;base64,' + data.mask;
+                })
+                .catch(error => {
+                    console.error('分割错误:', error);
+                    alert('分割失败：' + (error.response?.data?.error || '请检查网络或后端服务'));
+                });
+        };
+
+        // 滚动到控件区域
+        function scrollToContainer() {
+            const container = document.getElementById('main-container');
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const scrollPosition = container.getBoundingClientRect().top + window.scrollY - headerHeight;
+
+            window.scrollTo({
+                top: scrollPosition,
+                behavior: 'smooth'
+            });
+
+            // 添加视觉反馈
+            container.style.animation = 'containerHighlight 1.5s';
+        }
+    </script>
+</body>
+
+</html>

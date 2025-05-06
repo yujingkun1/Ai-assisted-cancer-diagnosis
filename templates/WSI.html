@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>WSI图像分析</title>
+    <meta name="description" content="QTP-GMD Genomics and Bioinformatics Tools">
+    <meta name="keywords" content="genomics, tools, blast, jbrowse, primer3, enrichment">
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com" rel="preconnect">
+    <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="/static/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.1/dist/echarts.min.js"></script>
+    <!-- Main CSS File -->
+    <link href="/static/assets/css/main.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: aliceblue;
+        }
+        .diagnosis-card {
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .image-preview {
+            border: 2px dashed #3fbbc0;
+            position: relative;
+        }
+        .highlight-overlay {
+            position: absolute;
+            border: 2px solid #ff4757;
+            background: rgba(255,71,87,0.1);
+            pointer-events: none;
+        }
+        .report-badge {
+            font-size: 1.2rem;
+            padding: 0.8em 1.5em;
+        }
+        .tool-content-area {
+            display: none; 
+        }
+        .tool-content-area.active {
+            display: block;
+        }
+        .tools-menu-item.active {
+            border-radius: 4px;
+        }
+        .tools-sidebar {
+            background: linear-gradient(160deg, rgba(16, 16, 48, 0.9), rgba(32, 32, 64, 0.9));
+            backdrop-filter: blur(15px);
+            border-right: 1px solid var(--科技蓝);
+            box-shadow: 5px 0 15px rgba(0, 243, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+        .tools-menu-item a {
+            color: #a0a0ff;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .tools-menu-item a:before {
+            content: '';
+            position: absolute;
+            left: -100%;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(0, 243, 255, 0.2), 
+                transparent);
+            transition: 0.5s;
+        }
+        .tools-menu-item.active a,
+        .tools-menu-item a:hover {
+            background: rgba(0, 243, 255, 0.1);
+            color: var(--科技蓝);
+            transform: translateX(10px);
+        }
+        .tools-menu-item a:hover:before {
+            left: 100%;
+        }
+        .diagnosis-card {
+            background: rgba(16, 16, 48, 0.8);
+            border: 1px solid rgba(0, 243, 255, 0.3);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+            transition: transform 0.3s ease;
+        }
+        .diagnosis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 243, 255, 0.2);
+        }
+        .btn-tool-primary {
+            background: linear-gradient(45deg, var(--电子紫), var(--科技蓝));
+            border: none;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: 0.3s;
+        }
+        .btn-tool-primary:after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent, 
+                rgba(255,255,255,0.2), 
+                transparent);
+            transform: rotate(45deg);
+            animation: btnGlow 3s infinite;
+        }
+        @keyframes btnGlow {
+            0% { transform: rotate(45deg) translateX(-150%); }
+            100% { transform: rotate(45deg) translateX(150%); }
+        }
+        #diagnosisChart {
+            background: rgba(20, 20, 40, 0.7);
+            border-radius: 8px;
+            border: 1px solid var(--科技蓝);
+            padding: 1rem;
+        }
+        .image-preview {
+            position: relative;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            background: 
+                linear-gradient(#000, #000) padding-box,
+                linear-gradient(45deg, var(--电子紫), var(--科技蓝)) border-box;
+        }
+        @keyframes scanLine {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scan-effect:after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 100%;
+            background: linear-gradient(90deg, transparent, var(--科技蓝), transparent);
+            animation: scanLine 3s infinite;
+        }
+        
+        .container1 {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 20px;
+            height: 95vh;
+        }
+        .control-panel {
+            background: #2d2d2d;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            margin-top: 10px;
+        }
+        .viewer-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            height: 100%;
+        }
+        .viewer {
+            background: #000;
+            border: 2px solid #3a3a3a;
+            border-radius: 8px;
+            height: 100%;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        .upload-btn {
+            transition: 0.3s;
+            background:#00bcd4;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 30px;
+            color: white;
+        }
+        .upload-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 243, 255, 0.4);
+        }
+    
+        #file-input {
+            display: none;
+        }
+        .metadata {
+            margin-top: 20px;
+            padding: 15px;
+            background: #333;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .prediction-item {
+            margin: 12px 0;
+            padding: 8px;
+            background: #2d2d2d;
+            border-radius: 6px;
+        }
+        .confidence-bar {
+            height: 6px;
+            background: #444;
+            border-radius: 3px;
+            margin-top: 8px;
+        }
+        .confidence-fill {
+            height: 100%;
+            width: 0%;
+            background: #1e3a8a;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        .header.sticky-top {
+            position: static !important;
+        }
+        header {
+            margin-top: 0;
+        }
+        .gene-table {
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        .gene-table th,
+        .gene-table td {
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 4px 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .gene-table th {
+            font-weight: bold;
+        }
+        
+        #scatter-viewer {
+            height: 100%;
+            width: 100%;
+            background: #000;
+            border: 2px solid #3a3a3a;
+            border-radius: 8px;
+        }
+        #gene-bar-chart {
+            height: 400px;
+            width: 100%;
+            background: #000;
+            border: 2px solid #3a3a3a;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        #download-btn {
+            position: relative;
+            z-index: 1000;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header sticky-top">
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+                <!-- 左侧 Logo 和 网站名 -->
+                <a href=" " class="logo d-flex align-items-center me-auto">
+                    <img src="../static/assets/img/logo.jpg" alt="">
+                    <strong style="font-size: 23px;">癌影云析</strong>
+                </a>
+    
+                <!-- 右侧导航菜单 -->
+                <nav id="navmenu" class="navmenu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li class="dropdown active">
+                            <a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <li><a href="/wsi">WSI图像分析</a></li>
+                                <li><a href="/api/ct" >CT图像分析</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/survival">生存分析</a></li>
+                        <li><a href="/rna_visualize">基因</a></li>
+                    </ul>
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
+                </nav>
+    
+                <!-- 登录按钮 -->
+                <a class="cta-btn" href="/auth/login" class="active">登录</a>
+            </div>
+        </div>
+    </header>
+    <div class="container1">
+        <div class="control-panel">
+            <h2 style="margin-top: 0;color: white;">影像分析</h2>
+            <div class="mb-4 text-end"></div>
+            <p style="color: #d1d1d1; font-size: 1rem; line-height: 1.6; margin-top: 30px;">
+                我们的影像分析工具利用先进的计算机视觉技术和基因数据整合，为医学影像提供精准的分析与可视化支持。
+            </p>
+            <label class="upload-btn">
+                上传图像
+                <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.svs,.ndpi,.tif,.tiff">
+            </label>
+            
+
+            <div class="metadata">
+                <!-- 底部信息 -->
+                <div style="margin-top: 2rem; color: #6c757d; font-size: 0.85em;">
+                    <div style="color: white;"><i class="bi bi-clock-history me-2" style="color: white;"></i>更新时间: 2025-4-19 14:30</div>
+                    <div class="mt-2" style="color: white;"><i class="bi bi-cpu me-2"></i>模型版本: GMD-2025.4</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="viewer-container">
+            <div id="original-viewer" class="viewer"></div>
+            <div id="scatter-viewer" style="margin-top: 10px;"></div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 style="color: #0A2347">基因数据表</h2>
+            <button id="download-btn" class="btn btn-tool-primary" style='background-color: #3fbbc0'>下载 CSV</button>
+        </div>
+        <div class="table-responsive ttab">
+            <table class="table table-bordered table-striped gene-table">
+                <thead>
+                    <tr>
+                        <th>image_name</th>
+                        <th>cell_id</th>
+                        <th>x</th>
+                        <th>y</th>
+                        <th>area</th>
+                        <th>perimeter</th>
+                        <th>cluster_label</th>
+                        <th>ENSG00000198712</th>
+                        <th>ENSG00000198938</th>
+                        <th>ENSG00000198886</th>
+                        <th>ENSG00000198804</th>
+                        <th>ENSG00000198899</th>
+                        <th>ENSG00000198840</th>
+                        <th>ENSG00000210082</th>
+                        <th>ENSG00000198727</th>
+                        <th>ENSG00000212907</th>
+                        <th>ENSG00000198888</th>
+                        <th>ENSG00000198763</th>
+                        <th>ENSG00000087086</th>
+                        <th>ENSG00000034510</th>
+                        <th>ENSG00000228253</th>
+                        <th>ENSG00000211592</th>
+                        <th>ENSG00000198695</th>
+                        <th>ENSG00000184009</th>
+                        <th>ENSG00000161016</th>
+                        <th>ENSG00000198786</th>
+                        <th>ENSG00000112306</th>
+                        <th>ENSG00000075624</th>
+                        <th>ENSG00000231500</th>
+                        <th>ENSG00000211459</th>
+                        <th>ENSG00000210196</th>
+                        <th>ENSG00000248527</th>
+                        <th>ENSG00000142534</th>
+                        <th>ENSG00000197956</th>
+                        <th>ENSG00000137154</th>
+                        <th>ENSG00000167658</th>
+                        <th>ENSG00000142541</th>
+                        <th>ENSG00000177600</th>
+                        <th>ENSG00000105388</th>
+                        <th>ENSG00000148303</th>
+                        <th>ENSG00000171858</th>
+                        <th>ENSG00000140988</th>
+                        <th>ENSG00000205542</th>
+                        <th>ENSG00000111640</th>
+                        <th>ENSG00000198034</th>
+                        <th>ENSG00000234745</th>
+                        <th>ENSG00000102837</th>
+                        <th>ENSG00000127324</th>
+                        <th>ENSG00000169100</th>
+                        <th>ENSG00000169109</th>
+                        <th>ENSG00000089157</th>
+                        <th>ENSG00000176153</th>
+                        <th>ENSG00000211895</th>
+                        <th>ENSG00000177954</th>
+                        <th>ENSG00000126432</th>
+                        <th>ENSG00000185885</th>
+                        <th>ENSG00000156508</th>
+                        <th>ENSG00000165215</th>
+                        <th>ENSG00000160180</th>
+                        <th>ENSG00000142089</th>
+                        <th>ENSG00000105372</th>
+                        <th>ENSG00000096384</th>
+                        <th>ENSG00000125534</th>
+                        <th>ENSG00000210144</th>
+                        <th>ENSG00000137818</th>
+                        <th>ENSG00000108518</th>
+                        <th>ENSG00000110955</th>
+                        <th>ENSG00000162896</th>
+                        <th>ENSG00000171747</th>
+                        <th>ENSG00000166710</th>
+                        <th>ENSG00000213719</th>
+                        <th>ENSG00000068697</th>
+                        <th>ENSG00000198755</th>
+                        <th>ENSG00000114942</th>
+                        <th>ENSG00000187514</th>
+                        <th>ENSG00000108298</th>
+                        <th>ENSG00000211890</th>
+                        <th>ENSG00000086548</th>
+                        <th>ENSG00000063046</th>
+                        <th>ENSG00000063177</th>
+                        <th>ENSG00000106153</th>
+                        <th>ENSG00000204525</th>
+                        <th>ENSG00000170421</th>
+                        <th>ENSG00000142937</th>
+                        <th>ENSG00000105193</th>
+                        <th>ENSG00000100300</th>
+                        <th>ENSG00000272398</th>
+                        <th>ENSG00000120708</th>
+                        <th>ENSG00000163993</th>
+                        <th>ENSG00000144713</th>
+                        <th>ENSG00000168653</th>
+                        <th>ENSG00000131143</th>
+                        <th>ENSG00000115268</th>
+                        <th>ENSG00000122406</th>
+                        <th>ENSG00000100316</th>
+                        <th>ENSG00000167526</th>
+                        <th>ENSG00000136942</th>
+                        <th>ENSG00000179218</th>
+                        <th>ENSG00000158710</th>
+                        <th>ENSG00000125148</th>
+                        <th>ENSG00000162244</th>
+                        <th>ENSG00000145425</th>
+                        <th>ENSG00000210140</th>
+                        <th>ENSG00000084207</th>
+                        <th>ENSG00000019582</th>
+                        <th>ENSG00000197747</th>
+                        <th>ENSG00000172757</th>
+                        <th>ENSG00000174444</th>
+                    </tr>
+                </thead>
+                    
+                <tbody id="gene-table-body">
+                    {% for row in gene_data %}
+                    <tr>
+                        <td>{{ row.image_name }}</td>
+                        <td>{{ row.cell_id }}</td>
+                        <td>{{ row.x }}</td>
+                        <td>{{ row.y }}</td>
+                        <td>{{ row.area }}</td>
+                        <td>{{ row.perimeter }}</td>
+                        <td>{{ row.cluster_label }}</td>
+                        <td>{{ row.ENSG00000198712 }}</td>
+                        <td>{{ row.ENSG00000198938 }}</td>
+                        <td>{{ row.ENSG00000198886 }}</td>
+                        <td>{{ row.ENSG00000198804 }}</td>
+                        <td>{{ row.ENSG00000198899 }}</td>
+                        <td>{{ row.ENSG00000198840 }}</td>
+                        <td>{{ row.ENSG00000210082 }}</td>
+                        <td>{{ row.ENSG00000198727 }}</td>
+                        <td>{{ row.ENSG00000212907 }}</td>
+                        <td>{{ row.ENSG00000198888 }}</td>
+                        <td>{{ row.ENSG00000198763 }}</td>
+                        <td>{{ row.ENSG00000087086 }}</td>
+                        <td>{{ row.ENSG00000034510 }}</td>
+                        <td>{{ row.ENSG00000228253 }}</td>
+                        <td>{{ row.ENSG00000211592 }}</td>
+                        <td>{{ row.ENSG00000198695 }}</td>
+                        <td>{{ row.ENSG00000184009 }}</td>
+                        <td>{{ row.ENSG00000161016 }}</td>
+                        <td>{{ row.ENSG00000198786 }}</td>
+                        <td>{{ row.ENSG00000112306 }}</td>
+                        <td>{{ row.ENSG00000075624 }}</td>
+                        <td>{{ row.ENSG00000231500 }}</td>
+                        <td>{{ row.ENSG00000211459 }}</td>
+                        <td>{{ row.ENSG00000210196 }}</td>
+                        <td>{{ row.ENSG00000248527 }}</td>
+                        <td>{{ row.ENSG00000142534 }}</td>
+                        <td>{{ row.ENSG00000197956 }}</td>
+                        <td>{{ row.ENSG00000137154 }}</td>
+                        <td>{{ row.ENSG00000167658 }}</td>
+                        <td>{{ row.ENSG00000142541 }}</td>
+                        <td>{{ row.ENSG00000177600 }}</td>
+                        <td>{{ row.ENSG00000105388 }}</td>
+                        <td>{{ row.ENSG00000148303 }}</td>
+                        <td>{{ row.ENSG00000171858 }}</td>
+                        <td>{{ row.ENSG00000140988 }}</td>
+                        <td>{{ row.ENSG00000205542 }}</td>
+                        <td>{{ row.ENSG00000111640 }}</td>
+                        <td>{{ row.ENSG00000198034 }}</td>
+                        <td>{{ row.ENSG00000234745 }}</td>
+                        <td>{{ row.ENSG00000102837 }}</td>
+                        <td>{{ row.ENSG00000127324 }}</td>
+                        <td>{{ row.ENSG00000169100 }}</td>
+                        <td>{{ row.ENSG00000169109 }}</td>
+                        <td>{{ row.ENSG00000089157 }}</td>
+                        <td>{{ row.ENSG00000176153 }}</td>
+                        <td>{{ row.ENSG00000211895 }}</td>
+                        <td>{{ row.ENSG00000177954 }}</td>
+                        <td>{{ row.ENSG00000126432 }}</td>
+                        <td>{{ row.ENSG00000185885 }}</td>
+                        <td>{{ row.ENSG00000156508 }}</td>
+                        <td>{{ row.ENSG00000165215 }}</td>
+                        <td>{{ row.ENSG00000160180 }}</td>
+                        <td>{{ row.ENSG00000142089 }}</td>
+                        <td>{{ row.ENSG00000105372 }}</td>
+                        <td>{{ row.ENSG00000096384 }}</td>
+                        <td>{{ row.ENSG00000125534 }}</td>
+                        <td>{{ row.ENSG00000210144 }}</td>
+                        <td>{{ row.ENSG00000137818 }}</td>
+                        <td>{{ row.ENSG00000108518 }}</td>
+                        <td>{{ row.ENSG00000110955 }}</td>
+                        <td>{{ row.ENSG00000162896 }}</td>
+                        <td>{{ row.ENSG00000171747 }}</td>
+                        <td>{{ row.ENSG00000166710 }}</td>
+                        <td>{{ row.ENSG00000213719 }}</td>
+                        <td>{{ row.ENSG00000068697 }}</td>
+                        <td>{{ row.ENSG00000198755 }}</td>
+                        <td>{{ row.ENSG00000114942 }}</td>
+                        <td>{{ row.ENSG00000187514 }}</td>
+                        <td>{{ row.ENSG00000108298 }}</td>
+                        <td>{{ row.ENSG00000211890 }}</td>
+                        <td>{{ row.ENSG00000086548 }}</td>
+                        <td>{{ row.ENSG00000063046 }}</td>
+                        <td>{{ row.ENSG00000063177 }}</td>
+                        <td>{{ row.ENSG00000106153 }}</td>
+                        <td>{{ row.ENSG00000204525 }}</td>
+                        <td>{{ row.ENSG00000170421 }}</td>
+                        <td>{{ row.ENSG00000142937 }}</td>
+                        <td>{{ row.ENSG00000105193 }}</td>
+                        <td>{{ row.ENSG00000100300 }}</td>
+                        <td>{{ row.ENSG00000272398 }}</td>
+                        <td>{{ row.ENSG00000120708 }}</td>
+                        <td>{{ row.ENSG00000163993 }}</td>
+                        <td>{{ row.ENSG00000144713 }}</td>
+                        <td>{{ row.ENSG00000168653 }}</td>
+                        <td>{{ row.ENSG00000131143 }}</td>
+                        <td>{{ row.ENSG00000115268 }}</td>
+                        <td>{{ row.ENSG00000122406 }}</td>
+                        <td>{{ row.ENSG00000100316 }}</td>
+                        <td>{{ row.ENSG00000167526 }}</td>
+                        <td>{{ row.ENSG00000136942 }}</td>
+                        <td>{{ row.ENSG00000179218 }}</td>
+                        <td>{{ row.ENSG00000158710 }}</td>
+                        <td>{{ row.ENSG00000125148 }}</td>
+                        <td>{{ row.ENSG00000162244 }}</td>
+                        <td>{{ row.ENSG00000145425 }}</td>
+                        <td>{{ row.ENSG00000210140 }}</td>
+                        <td>{{ row.ENSG00000084207 }}</td>
+                        <td>{{ row.ENSG00000019582 }}</td>
+                        <td>{{ row.ENSG00000197747 }}</td>
+                        <td>{{ row.ENSG00000172757 }}</td>
+                        <td>{{ row.ENSG00000174444 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- New section for the bar chart -->
+    <div class="container mt-4">
+        <h2 style="color: #0A2347">Top 10 Genes by Sum (First 10 Rows)</h2>
+        <div id="gene-bar-chart"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/openseadragon.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('DOM fully loaded');
+
+            // Check if download-btn exists
+            const downloadBtn = document.getElementById('download-btn');
+            if (!downloadBtn) {
+                console.error('download-btn element not found');
+                return;
+            }
+
+            // Initialize OpenSeadragon viewer
+            const originalViewer = OpenSeadragon({
+                element: "original-viewer",
+                prefixUrl: "https://cdn.jsdelivr.net/npm/openseadragon@3.1/build/openseadragon/images/",
+                showNavigator: true,
+                navigatorPosition: "BOTTOM_RIGHT"
+            });
+
+            // Load default image
+            const defaultImageUrl = "http://localhost:5000/uploads/TCGA-A6-6137-01A-01-BS1.41a4a669-6afe-466c-8956-4ebb8415907d.png";
+            originalViewer.open({
+                type: 'image',
+                url: defaultImageUrl
+            });
+
+            // Initialize ECharts for heatmap and bar chart
+            const heatmapChart = echarts.init(document.getElementById('scatter-viewer'));
+            const geneBarChart = echarts.init(document.getElementById('gene-bar-chart'));
+
+            // Default heatmap data
+            let heatmapData = Array.from({length: 50}, (_, i) => ({
+                cluster_label: `cluster_${Math.floor(i / 10)}`,
+                ENSG00000198712: Math.random() * 10,
+                ENSG00000198938: Math.random() * 10,
+                ENSG00000198886: Math.random() * 10,
+                ENSG00000198804: Math.random() * 10,
+                ENSG00000198899: Math.random() * 10
+            }));
+
+            // Selected genes for heatmap
+            const selectedGenes = [
+                'ENSG00000198712',
+                'ENSG00000198938',
+                'ENSG00000198886',
+                'ENSG00000198804',
+                'ENSG00000198899'
+            ];
+
+            // Min-Max normalization function
+            function minMaxNormalize(data, gene) {
+                const values = data.map(item => item[gene]).filter(val => !isNaN(val));
+                const minValue = Math.min(...values);
+                const maxValue = Math.max(...values);
+                if (maxValue === minValue) {
+                    return data.map(item => ({ ...item, [`normalized_${gene}`]: 0 }));
+                }
+                return data.map(item => ({
+                    ...item,
+                    [`normalized_${gene}`]: (item[gene] - minValue) / (maxValue - minValue)
+                }));
+            }
+
+            // Function to update heatmap
+            function updateHeatmapChart(data) {
+                let originalData = [...data];
+                const sortedData = [...data].sort((a, b) => 
+                    a.cluster_label.localeCompare(b.cluster_label, undefined, { numeric: true })
+                );
+
+                let normalizedData = sortedData;
+                selectedGenes.forEach(gene => {
+                    normalizedData = minMaxNormalize(normalizedData, gene);
+                });
+
+                const heatmapValues = [];
+                normalizedData.forEach((item, rowIndex) => {
+                    selectedGenes.forEach((gene, geneIndex) => {
+                        heatmapValues.push([geneIndex, rowIndex, item[`normalized_${gene}`] || 0]);
+                    });
+                });
+
+                const values = heatmapValues.map(d => d[2]);
+                const minValue = Math.min(...values);
+                const maxValue = Math.max(...values);
+
+                const option = {
+                    backgroundColor: '#000',
+                    tooltip: {
+                        trigger: 'item',
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        borderColor: '#3a3a3a',
+                        textStyle: { color: '#fff' },
+                        formatter: (params) => {
+                            const [geneIndex, rowIndex] = params.data;
+                            const gene = selectedGenes[geneIndex];
+                            const originalValue = originalData.find(item => item.cluster_label === normalizedData[rowIndex].cluster_label)[gene];
+                            return `Cluster: ${normalizedData[rowIndex].cluster_label}<br>Gene: ${gene}<br>Original Expression: ${originalValue.toFixed(2)}`;
+                        }
+                    },
+                    grid: {
+                        height: '75%',
+                        top: '10%',
+                        right: '11%',
+                        left: '15%'
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: selectedGenes,
+                        axisLine: { lineStyle: { color: '#3a3a3a' } },
+                        axisLabel: { 
+                            color: '#fff',
+                            rotate: 45,
+                            interval: 0
+                        }
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: normalizedData.map(item => item.cluster_label),
+                        axisLine: { lineStyle: { color: '#3a3a3a' } },
+                        axisLabel: { 
+                            color: '#fff',
+                            fontSize: 10,
+                            interval: 0
+                        }
+                    },
+                    visualMap: {
+                        min: minValue,
+                        max: maxValue,
+                        calculable: true,
+                        orient: 'vertical',
+                        right: '5%',
+                        top: 'center',
+                        inRange: {
+                            color: ['#0000ff', '#add8e6', '#ffb6c1', '#ff0000']
+                        },
+                        textStyle: { color: '#fff' }
+                    },
+                    series: [{
+                        type: 'heatmap',
+                        data: heatmapValues,
+                        itemStyle: {
+                            borderColor: '#000',
+                            borderWidth: 1
+                        }
+                    }]
+                };
+                heatmapChart.setOption(option);
+            }
+
+            // Function to update bar chart
+            function updateGeneBarChart(topGenes) {
+                const geneNames = topGenes.map(item => item.name);
+                const geneValues = topGenes.map(item => item.value);
+                const reversedGeneNames = geneNames.slice().reverse();
+                const reversedGeneValues = geneValues.slice().reverse();
+
+                const option = {
+                    backgroundColor: '#000',
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: { type: 'shadow' },
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        borderColor: '#3a3a3a',
+                        textStyle: { color: '#fff' }
+                    },
+                    xAxis: {
+                        type: 'value',
+                        axisLine: { lineStyle: { color: '#3a3a3a' } },
+                        axisLabel: { color: '#fff' },
+                        splitLine: { lineStyle: { color: '#3a3a3a' } }
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: reversedGeneNames,
+                        axisLine: { lineStyle: { color: '#3a3a3a' } },
+                        axisLabel: { color: '#fff' }
+                    },
+                    series: [{
+                        type: 'bar',
+                        data: reversedGeneValues.map((value, index) => ({
+                            value: value,
+                            itemStyle: {
+                                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                                    { offset: 0, color: '#2ecc71' },
+                                    { offset: 0.5, color: '#f1c40f' },
+                                    { offset: 1, color: '#e74c3c' }
+                                ])
+                            }
+                        })),
+                        barWidth: '60%'
+                    }]
+                };
+                geneBarChart.setOption(option);
+            }
+
+            // Initial heatmap render
+            updateHeatmapChart(heatmapData);
+
+            // Handle image upload and CSV data
+            document.getElementById('file-input').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (!file) {
+                    alert('请先选择医学图像文件');
+                    return;
+                }
+
+                const formData = new FormData();
+                formData.append('file', file);
+
+                fetch('http://localhost:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        alert(data.error);
+                        return;
+                    }
+
+                    const imageUrl = `http://localhost:5000/uploads/${data.filename}`;
+                    originalViewer.open({
+                        type: 'image',
+                        url: imageUrl
+                    });
+
+                    fetch('http://localhost:5000/get_mean_expression_csv')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('mean_expression.csv file not found');
+                        }
+                        return response.text();
+                    })
+                    .then(csvText => {
+                        const rows = csvText.split('\n').map(row => row.trim()).filter(row => row);
+                        if (rows.length < 2) {
+                            throw new Error('CSV file is empty or contains only header');
+                        }
+
+                        const headers = rows[0].split(',').map(header => header.trim());
+                        if (!headers.includes('cluster_label') || !selectedGenes.every(gene => headers.includes(gene))) {
+                            throw new Error('CSV missing required headers: cluster_label or selected genes');
+                        }
+
+                        const data = rows.slice(1).map((row, index) => {
+                            const values = row.split(',').map(val => val.trim());
+                            const parsed = {
+                                cluster_label: values[headers.indexOf('cluster_label')]
+                            };
+                            selectedGenes.forEach(gene => {
+                                parsed[gene] = parseFloat(values[headers.indexOf(gene)]);
+                            });
+                            if (selectedGenes.some(gene => isNaN(parsed[gene]))) {
+                                console.warn(`Row ${index + 2} invalid: ${row}`);
+                            }
+                            return parsed;
+                        }).filter(item => selectedGenes.every(gene => !isNaN(item[gene])));
+
+                        if (data.length === 0) {
+                            throw new Error('No valid data points after parsing');
+                        }
+
+                        heatmapData = data;
+                        updateHeatmapChart(heatmapData);
+
+                        fetch('http://localhost:5000/get_top_genes')
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                throw new Error(data.error);
+                            }
+                            const topGenes = data.top_genes;
+                            updateGeneBarChart(topGenes);
+                        })
+                        .catch(error => {
+                            console.error('Error fetching top genes:', error);
+                            alert('无法加载基因数据：' + error.message);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error processing mean_expression.csv:', error);
+                        alert('无法加载mean_expression.csv数据，将显示默认数据：' + error.message);
+                        heatmapData = Array.from({length: 50}, (_, i) => ({
+                            cluster_label: `cluster_${Math.floor(i / 10)}`,
+                            ENSG00000198712: Math.random() * 10,
+                            ENSG00000198938: Math.random() * 10,
+                            ENSG00000198886: Math.random() * 10,
+                            ENSG00000198804: Math.random() * 10,
+                            ENSG00000198899: Math.random() * 10
+                        }));
+                        updateHeatmapChart(heatmapData);
+                    });
+                })
+                .catch(error => {
+                    console.error('Error uploading file:', error);
+                    alert('图片上传失败');
+                });
+            });
+
+            // Resize charts on window resize
+            window.addEventListener('resize', () => {
+                heatmapChart.resize();
+                geneBarChart.resize();
+            });
+
+            // Download CSV file
+            downloadBtn.addEventListener('click', () => {
+                console.log('Download button clicked');
+                fetch('http://localhost:5000/get_dna_csv')
+                    .then(response => {
+                        console.log('Response status:', response.status);
+                        if (!response.ok) {
+                            throw new Error('Failed to fetch dna.csv');
+                        }
+                        return response.blob();
+                    })
+                    .then(blob => {
+                        console.log('Received Blob:', blob);
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = 'dna.csv';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        URL.revokeObjectURL(url);
+                    })
+                    .catch(error => {
+                        console.error('Download failed:', error);
+                        alert('下载 dna.csv 失败：' + error.message);
+                    });
+            });
+        });
+    </script>
+</body>
+</html>

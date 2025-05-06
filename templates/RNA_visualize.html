@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>mRNA测序可视化</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="/static/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="/static/assets/vendor/aos/aos.css" rel="stylesheet">
+    <link href="/static/assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="/static/assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    
+    <!-- Main CSS File -->
+    <link href="/static/assets/css/main.css" rel="stylesheet">
+    <!-- Axios CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <!-- Plotly CDN -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body {
+            background: aliceblue;
+            min-height: 100vh;
+        }
+
+        .chart-container {
+            background: #fff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .chart-container.full-width {
+            max-width: 1200px;
+        }
+
+        .chart-container h4 {
+            text-align: center;
+            margin-bottom: 1rem;
+            color: #0A2347;
+        }
+
+        .chart-container div {
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .btn-custom {
+            background: #00bcd4;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            color: white;
+            background: #00bcd4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .upload-section {
+            border: 2px dashed #00bcd4;
+            padding: 2rem;
+            border-radius: 15px;
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .image-feature {
+            background-color: aliceblue;
+        }
+
+        li {
+            color: #0A2347;
+        }
+
+        .tech-feature {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .image-frame {
+            transition: transform 0.3s ease;
+        }
+
+        .badge-overlay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        .display-6 {
+            line-height: 1.3;
+        }
+
+        .feature-list h5 {
+            color: #0A2347;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #00bcd4;
+            border-color: #0097a7;
+            padding: 12px 28px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #00bcd4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 151, 167, 0.3);
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header sticky-top">
+        <div class="branding d-flex align-items-center">
+            <div class="container position-relative d-flex align-items-center justify-content-between">
+                <!-- 左侧 Logo 和 网站名 -->
+                <a href=" " class="logo d-flex align-items-center me-auto">
+                    <img src="../static/assets/img/logo.jpg" alt="">
+                    <strong style="font-size: 23px;">癌影云析</strong>
+                </a>
+    
+                <!-- 右侧导航菜单 -->
+                <nav id="navmenu" class="navmenu">
+                    <ul>
+                        <li><a href="/">首页</a></li>
+                        <li class="dropdown active">
+                            <a href="#"><span>医学图像分析</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                            <ul>
+                                <li><a href="/wsi">WSI图像分析</a></li>
+                                <li><a href="/api/ct" >CT图像分析</a></li>
+                            </ul>
+                        </li>
+                        <li><a href="/survival">生存分析</a></li>
+                        <li><a href="/rna_visualize" class="active">基因</a></li>
+                    </ul>
+                    <i class="mobile-nav-toggle d-xl-none bi bi-list" style="display: none;"></i>
+                </nav>
+    
+                <!-- 登录按钮 -->
+                <a class="cta-btn" href="/auth/login">登录</a>
+            </div>
+        </div>
+    </header>
+    <section class="tech-feature py-5" style="background: aliceblue;">
+        <div class="container">
+            <div class="row g-5 align-items-center" style="box-shadow: none;">
+                <div class="col-lg-6" style="box-shadow: none;">
+                    <div class="image-frame position-relative">
+                        <img src="..\static\assets\img\hero-carousel\RNA.jpg" alt="Visium HD技术"
+                            class="img-fluid rounded-3 shadow" style="box-shadow: none;">
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="ps-lg-4">
+                        <div class="mt-2" style="color: #0A2347;"><i class="bi bi-cpu me-2"></i>模型版本: GMD-2025.5</div>
+                        <h2 class="display-6 fw-bold mb-4" style="color: #0A2347;">
+                            mRNA测序可视化平台
+                            <span class="d-block mt-2" style="font-size: 1.2rem; color: #0A2347;">
+                                开启基因表达分析的新维度
+                            </span>
+                        </h2>
+                        <div class="feature-list mb-4">
+                            <div class="d-flex mb-3">
+                                <i class="bi bi-check2-circle me-3" style="color: #0A2347; font-size: 1.5rem;"></i>
+                                <div>
+                                    <h5 class="fw-bold">表达显著基因</h5>
+                                    <p class="text-muted mb-0" style="color: #0A2347;">
+                                        从bulk数据中筛选出表达量最高的前二十个基因，并将基因与表达量动态可视化</p>
+                                </div>
+                            </div>
+                            <div class="d-flex mb-3">
+                                <i class="bi bi-layer-forward me-3" style="color: #0A2347; font-size: 1.5rem;"></i>
+                                <div>
+                                    <h5 class="fw-bold">基因表达分布</h5>
+                                    <p class="text-muted mb-0" style="color: #0A2347;">直观展示出bulk数据中不同表达量的基因分布情况</p>
+                                </div>
+                            </div>
+                            <div class="d-flex">
+                                <i class="bi bi-gear-wide-connected me-3"
+                                    style="color: #0A2347; font-size: 1.5rem;"></i>
+                                <div>
+                                    <h5 class="fw-bold">异常基因捕捉</h5>
+                                    <p class="text-muted mb-0" style="color: #0A2347;">利用高斯分布阈值，筛选可能需要特别关注的异常基因</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-custom" onclick="scrollToContainer()">开始分析</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div class="container" id="main-container" style="margin-top: 5%;">
+        <div class="upload-section">
+            <input type="file" id="rnaFile" class="form-control mb-3" accept=".csv,.xlsx">
+            <button class="btn btn-custom" onclick="uploadFile()">上传数据</button>
+            <button class="btn btn-custom" onclick="generateVisuals()">生成可视化</button>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>表达显著基因</h4>
+                    <div id="bubbleChart" style="width: 100%; height: 600px;"></div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h4>表达分布</h4>
+                    <div id="histogram" style="width: 100%; height: 600px;"></div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="chart-container full-width">
+                    <h4>表达异常值</h4>
+                    <div id="boxplot" style="width: 100%; height: 600px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        async function uploadFile() {
+            const fileInput = document.getElementById('rnaFile');
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                alert(result.message || result.error);
+            } catch (error) {
+                alert('上传失败: ' + error.message);
+            }
+        }
+
+        async function generateVisuals() {
+            try {
+                // 触发后端处理
+                const visualizeResponse = await fetch('/visualize', { method: 'POST' });
+                if (!visualizeResponse.ok) {
+                    const errorText = await visualizeResponse.text();
+                    console.error('Visualize response:', errorText);
+                    throw new Error(`Visualize failed: ${visualizeResponse.status} ${errorText}`);
+                }
+                const visualizeResult = await visualizeResponse.json();
+                if (!visualizeResult.message) {
+                    console.error('Visualize result:', visualizeResult);
+                    alert(visualizeResult.error);
+                    return;
+                }
+                // 获取 Plotly 数据
+                const dataResponse = await fetch('/get_visualization_data');
+                if (!dataResponse.ok) {
+                    const errorText = await dataResponse.text();
+                    console.error('Data response:', errorText);
+                    throw new Error(`Data fetch failed: ${dataResponse.status} ${errorText}`);
+                }
+                const data = await dataResponse.json();
+                if (data.error) {
+                    console.error('Data error:', data);
+                    alert(data.error);
+                    return;
+                }
+                console.log('Plotly data:', data);
+                // 气泡图
+                const bubbleTrace = {
+                    x: data.bubble.x,
+                    y: data.bubble.y,
+                    mode: 'markers',
+                    marker: {
+                        size: data.bubble.size,
+                        color: data.bubble.color,
+                        colorscale: 'Viridis',
+                        reversescale: true,
+                        showscale: true,
+                        colorbar: { title: 'log10(TPM)' }
+                    },
+                    text: data.bubble.y,
+                    hovertemplate: 'Gene: %{y}<br>log10(TPM): %{x:.2f}<extra></extra>',
+                    hoverinfo: 'y+x'
+                };
+                const bubbleLayout = {
+                    title: 'Top 50 Expressed Genes',
+                    xaxis: { title: 'log10(TPM+1)' },
+                    yaxis: { title: 'Gene ID', autorange: 'reversed' },
+                    height: 600,
+                    margin: { t: 50, b: 50, l: 150, r: 50 },
+                    hovermode: 'y'
+                };
+                Plotly.newPlot('bubbleChart', [bubbleTrace], bubbleLayout);
+                // 直方图
+                const histTrace = {
+                    x: data.histogram,
+                    type: 'histogram',
+                    xbins: { size: (Math.max(...data.histogram) - Math.min(...data.histogram)) / 50 },
+                    marker: { color: 'skyblue' }
+                };
+                const histLayout = {
+                    title: 'Gene Expression Distribution',
+                    xaxis: { title: 'TPM' },
+                    yaxis: { title: 'Frequency (log scale)', type: 'log' },
+                    height: 600,
+                    margin: { t: 50, b: 50, l: 50, r: 50 }
+                };
+                Plotly.newPlot('histogram', [histTrace], histLayout);
+                // 箱线图
+                if (!data.boxplot.genes || data.boxplot.genes.length === 0) {
+                    console.warn('No abnormal genes data available');
+                    document.getElementById('boxplot').innerHTML = '<p style="text-align: center; color: #0A2347;">无异常基因数据</p>';
+                    return;
+                }
+                console.debug('Boxplot data:', {
+                    genes_length: data.boxplot.genes.length,
+                    sample_genes: data.boxplot.genes.slice(0, 5),
+                    sample_ranges: data.boxplot.normal_ranges.slice(0, 5),
+                    sample_targets: data.boxplot.target_values.slice(0, 5)
+                });
+                const boxTraces = [];
+                data.boxplot.genes.forEach((gene, i) => {
+                    const range = data.boxplot.normal_ranges[i];
+                    const target = data.boxplot.target_values[i];
+                    if (range && target != null && !isNaN(range[0]) && !isNaN(range[1]) && !isNaN(target)) {
+                        // 正常范围线条（无悬停）
+                        boxTraces.push({
+                            x: [range[0], range[1]],
+                            y: [gene, gene],
+                            mode: 'lines',
+                            line: { color: 'lightblue', width: 10 },
+                            name: 'Normal Range',
+                            showlegend: i === 0,
+                            hoverinfo: 'skip'
+                        });
+                        // 目标值红点（无悬停）
+                        boxTraces.push({
+                            x: [target],
+                            y: [gene],
+                            mode: 'markers',
+                            marker: { color: 'red', size: 8 },
+                            name: 'Target Value',
+                            showlegend: i === 0,
+                            hoverinfo: 'skip'
+                        });
+                        // 纵坐标悬停标记（透明）
+                        boxTraces.push({
+                            x: [target], // 放在目标值位置，但不可见
+                            y: [gene],
+                            mode: 'markers',
+                            marker: { color: 'transparent', size: 1, opacity: 0 },
+                            name: '',
+                            showlegend: false,
+                            hoverinfo: 'y+x',
+                            customdata: [[range[0], range[1], target]],
+                            hovertemplate: 'Gene: %{y}<br>Normal Range: %{customdata[0]:.2f} - %{customdata[1]:.2f}<br>Target Value: %{customdata[2]:.2f}<extra></extra>'
+                        });
+                    } else {
+                        console.warn('Invalid boxplot data at index %d: gene=%s, range=%s, target=%s',
+                            i, gene, range, target);
+                    }
+                });
+                if (boxTraces.length === 0) {
+                    console.warn('No valid boxplot traces generated');
+                    document.getElementById('boxplot').innerHTML = '<p style="text-align: center; color: #0A2347;">无有效异常基因数据</p>';
+                } else {
+                    const boxLayout = {
+                        title: 'Box Plot with Normal Range and Target Value',
+                        xaxis: { title: 'Value' },
+                        yaxis: { title: 'Gene', autorange: 'reversed' },
+                        height: 600,
+                        margin: { t: 50, b: 50, l: 150, r: 50 },
+                        showlegend: true,
+                        hovermode: 'y'
+                    };
+                    Plotly.newPlot('boxplot', boxTraces, boxLayout);
+                }
+            } catch (error) {
+                console.error('Generation error:', error);
+                alert('生成失败: ' + error.message);
+            }
+        }
+
+        function scrollToContainer() {
+            const container = document.getElementById('main-container');
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const scrollPosition = container.getBoundingClientRect().top + window.scrollY - headerHeight;
+            window.scrollTo({
+                top: scrollPosition,
+                behavior: 'smooth'
+            });
+            container.style.animation = 'containerHighlight 1.5s';
+        }
+    </script>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, render_template
 from flask_cors import CORS  # 导入 CORS 支持
 import logging  # 导入日志模块
-from infer.MedSAM_main.inference import (
+from infer.CT.inference import (
     read_image, get_image_embedding,
     segment_with_box, preprocess_image,
 )

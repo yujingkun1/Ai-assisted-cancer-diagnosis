@@ -1,5 +1,7 @@
 # 癌影云析-基于多模态数据融合的癌症辅助诊断系统
 
+### 项目github网址：https://github.com/yujingkun1/Ai-assisted-cancer-diagnosis
+
 ## Windows部署
 
 用户需要下载Python，Mysql，Anocanda等依赖软件，在完成相关依赖的配置后，最后通过浏览器访问到系统界面。 安装完成后的软件预计会占用5000端口，请提前预留端口以避免冲突。
